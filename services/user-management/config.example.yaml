@@ -1,0 +1,16 @@
+server:
+  port: 3000
+
+grpc:
+  user_host: "user-service"
+  user_port: 8080
+  auth_host: "auth-service"
+  auth_port: 8081
+
+postgres:
+  host: "user-db"
+  port: "5432"
+  user: "root"
+  password: "secret"
+  database: "user-db"
+  ssl_mode: "disable"

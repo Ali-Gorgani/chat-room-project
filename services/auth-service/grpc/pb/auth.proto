@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "grpc/pkg/auth";
+
+message HashPasswordReq {
+  string password = 1;
+}
+
+message HashPasswordRes {
+  string hashed_password = 1;
+}
+
+message VerifyTokenReq {
+  string token = 1;
+}
+
+message VerifyTokenRes {
+  int32 id = 1;
+  string username = 2;
+  string email = 3;
+  string role = 4;
+}
+
+service AuthService {
+  rpc HashPassword(HashPasswordReq) returns (HashPasswordRes) {}
+  rpc VerifyToken(VerifyTokenReq) returns (VerifyTokenRes) {}
+}

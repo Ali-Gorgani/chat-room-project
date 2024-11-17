@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "grpc/pkg/user";
+
+message UserRes {
+  int32 id = 1;
+  string username = 2;
+  string password = 3;
+  string email = 4;
+  Role role = 5;
+}
+
+message Role {
+  string name = 1;
+  repeated string premissions = 2;
+}
+
+message GetUserReq {
+  string username = 1;
+}
+
+service UsersService {
+  rpc GetUserByUsername(GetUserReq) returns (UserRes) {}
+}

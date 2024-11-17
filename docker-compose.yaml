@@ -1,0 +1,60 @@
+services:
+  # PostgreSQL database for the user management service
+  user-db:
+    image: postgres:latest
+    container_name: user-db
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: user-db
+    ports:
+      - "5432:5432"
+    networks:
+      - chatroom-network
+
+  # PostgreSQL database for the auth service
+  auth-db:
+    image: postgres:latest
+    container_name: auth-db
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: auth-db
+    ports:
+      - "5433:5432"
+    networks:
+      - chatroom-network
+
+  user-service:
+    build:
+      context: ./services/user-management
+      dockerfile: Dockerfile
+    container_name: user-service
+    restart: always
+    ports:
+      - "3000:3000"
+      - "8080:8080" # gRPC server
+    depends_on:
+      - user-db
+    networks:
+      - chatroom-network
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    restart: always
+    ports:
+      - "3001:3001"
+      - "8081:8081" # gRPC server
+    depends_on:
+      - auth-db
+    networks:
+      - chatroom-network
+
+networks:
+  chatroom-network:
+    driver: bridge

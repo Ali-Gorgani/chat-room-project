@@ -1,0 +1,21 @@
+server:
+  port: 3001
+
+grpc:
+  user_host: "user-service"
+  user_port: 8080
+  auth_host: "auth-service"
+  auth_port: 8081
+
+postgres:
+  host: "auth-db"
+  port: "5432"
+  user: "root"
+  password: "secret"
+  database: "auth-db"
+  ssl_mode: "disable"
+
+jwt:
+  secret_key: "YbECVX6TtPbIrdHi4VTR67jaxaqiYALM"
+  access_token_duration: 15m
+  refresh_token_duration: 24h

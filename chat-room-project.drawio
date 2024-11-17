@@ -27,7 +27,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="PnjcyFMfAKBJvZ8ztsNH-14" value="User Service" style="sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=left;verticalLabelPosition=middle;verticalAlign=middle;align=right;fillColor=#00188D;shape=mxgraph.mscae.enterprise.device;horizontal=1;fontStyle=1;labelBackgroundColor=none;labelBorderColor=none;spacingTop=0;spacingRight=5;" vertex="1" parent="1">
+        <mxCell id="PnjcyFMfAKBJvZ8ztsNH-14" value="User Service" style="sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=left;verticalLabelPosition=middle;verticalAlign=middle;align=right;fillColor=#00188D;shape=mxgraph.mscae.enterprise.device;horizontal=1;fontStyle=1;labelBackgroundColor=none;labelBorderColor=none;spacingTop=0;spacingRight=0;spacing=5;" vertex="1" parent="1">
           <mxGeometry x="205.54" y="307" width="76.92" height="40" as="geometry" />
         </mxCell>
         <mxCell id="PnjcyFMfAKBJvZ8ztsNH-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="PnjcyFMfAKBJvZ8ztsNH-2" target="PnjcyFMfAKBJvZ8ztsNH-14">
@@ -53,7 +53,7 @@
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="PnjcyFMfAKBJvZ8ztsNH-21" value="Auth Service" style="sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=left;verticalLabelPosition=middle;verticalAlign=middle;align=right;fillColor=#00188D;shape=mxgraph.mscae.enterprise.device;horizontal=1;fontStyle=1;labelBackgroundColor=none;labelBorderColor=none;spacingTop=0;spacingRight=5;" vertex="1" parent="1">
+        <mxCell id="PnjcyFMfAKBJvZ8ztsNH-21" value="Auth Service" style="sketch=0;aspect=fixed;pointerEvents=1;shadow=0;dashed=0;html=1;strokeColor=none;labelPosition=right;verticalLabelPosition=middle;verticalAlign=middle;align=left;fillColor=#00188D;shape=mxgraph.mscae.enterprise.device;horizontal=1;fontStyle=1;labelBackgroundColor=none;labelBorderColor=none;spacingTop=0;spacingRight=0;spacing=5;" vertex="1" parent="1">
           <mxGeometry x="455.53999999999996" y="307" width="76.92" height="40" as="geometry" />
         </mxCell>
         <mxCell id="PnjcyFMfAKBJvZ8ztsNH-22" value="Router" style="image;html=1;image=img/lib/clip_art/networking/Wireless_Router_128x128.png;verticalAlign=top;fontStyle=1;labelBackgroundColor=none;" vertex="1" parent="1">
@@ -61,6 +61,12 @@
         </mxCell>
         <mxCell id="PnjcyFMfAKBJvZ8ztsNH-27" value="Router" style="image;html=1;image=img/lib/clip_art/networking/Wireless_Router_128x128.png;verticalAlign=top;fontStyle=1;labelBackgroundColor=none;" vertex="1" parent="1">
           <mxGeometry x="80" y="180" width="60" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="PnjcyFMfAKBJvZ8ztsNH-31" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.03;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="PnjcyFMfAKBJvZ8ztsNH-14" target="PnjcyFMfAKBJvZ8ztsNH-21">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="PnjcyFMfAKBJvZ8ztsNH-32" value="gRPC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.97;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontSize=14;fontStyle=1" edge="1" parent="1" source="PnjcyFMfAKBJvZ8ztsNH-21" target="PnjcyFMfAKBJvZ8ztsNH-14">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

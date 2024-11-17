@@ -1,2 +1,3 @@
-$2a$10$OoJ5wqaOGtyN80vEChXC1eFJ5ySCNOHGYAAgOQgCnqcBBVvirkBJu
-$2a$10$suCUnpdHyEPdUfqXCPxWb./A1Eu3AwQajs0Fpjb/5MqLoqWbh9mXy
+How to Run:
+in cmd run `make up_build`
+go to `http://localhost:3000/swagger` for user swagger and `http://localhost:3001/swagger` for auth swagger

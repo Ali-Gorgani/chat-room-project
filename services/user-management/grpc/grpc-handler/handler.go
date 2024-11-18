@@ -5,9 +5,6 @@ import (
 
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/core/usecase"
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/grpc/pkg/user"
-	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/configs"
-	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/ent"
-	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/logger"
 )
 
 type UserHandler struct {
@@ -15,9 +12,9 @@ type UserHandler struct {
 	userUseCase *usecase.UserUseCase
 }
 
-func NewUserHandler(client *ent.Client, logger *logger.Logger, config *configs.Config) *UserHandler {
+func NewUserHandler(userUseCase *usecase.UserUseCase) *UserHandler {
 	return &UserHandler{
-		userUseCase: usecase.NewUserUseCase(client, logger, config),
+		userUseCase: userUseCase,
 	}
 }
 

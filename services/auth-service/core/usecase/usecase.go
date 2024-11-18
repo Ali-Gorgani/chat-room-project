@@ -7,12 +7,10 @@ import (
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/core/domain"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/core/ports"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/grpc/service/user"
-	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/repository"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/configs"
-	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/ent"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/errors"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/hash"
-	token "github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/jwt"
+	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/jwt"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/logger"
 )
 
@@ -23,10 +21,10 @@ type AuthUseCase struct {
 	config         *configs.Config
 }
 
-func NewAuthUseCase(client *ent.Client, logger *logger.Logger, config *configs.Config) *AuthUseCase {
+func NewAuthUseCase(authRepository ports.IAuthRepository, userService *user.UsersService, logger *logger.Logger, config *configs.Config) *AuthUseCase {
 	return &AuthUseCase{
-		authRepository: repository.NewAuthRepository(client, logger),
-		userService:    user.NewUserService(logger, config),
+		authRepository: authRepository,
+		userService:    userService,
 		logger:         logger,
 		config:         config,
 	}
@@ -209,19 +207,19 @@ func (a *AuthUseCase) HashPassword(ctx context.Context, auth domain.Auth) (domai
 
 func (a *AuthUseCase) CreateToken(ctx context.Context, auth domain.Auth) (domain.Auth, error) {
 	secretKey := a.config.JWT.SecretKey
-	userClaims := token.UserClaims{
+	userClaims := jwt.UserClaims{
 		ID:       auth.Claims.ID,
 		Username: auth.Claims.Username,
 		Email:    auth.Claims.Email,
 		Role:     auth.Claims.Role,
 		Duration: auth.Claims.Duration,
 	}
-	claims, err := token.NewUserClaims(userClaims)
+	claims, err := jwt.NewUserClaims(userClaims)
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("error in creating token claims: %v", err))
 		return domain.Auth{}, errors.NewError(errors.ErrorInternal, err)
 	}
-	accessToken, err := token.CreateToken(secretKey, claims)
+	accessToken, err := jwt.CreateToken(secretKey, claims)
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("error in creating token claims: %v", err))
 		return domain.Auth{}, errors.NewError(errors.ErrorInternal, err)
@@ -250,7 +248,7 @@ func (a *AuthUseCase) CreateToken(ctx context.Context, auth domain.Auth) (domain
 
 func (a *AuthUseCase) VerifyToken(ctx context.Context, auth domain.Auth) (domain.Auth, error) {
 	secretKey := a.config.JWT.SecretKey
-	claims, err := token.VerifyToken(auth.AccessToken, secretKey)
+	claims, err := jwt.VerifyToken(auth.AccessToken, secretKey)
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("error in verifying token: %v", err))
 		return domain.Auth{}, errors.NewError(errors.ErrorUnauthorized, err)

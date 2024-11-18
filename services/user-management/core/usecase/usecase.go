@@ -7,24 +7,21 @@ import (
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/core/domain"
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/core/ports"
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/grpc/service/auth"
-	"github.com/Ali-Gorgani/chat-room-project/services/user-management/repository"
-	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/configs"
-	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/ent"
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/errors"
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/logger"
 )
 
 type UserUseCase struct {
-	logger         *logger.Logger
 	userRepository ports.IUserRepository
 	authService    *auth.AuthService
+	logger         *logger.Logger
 }
 
-func NewUserUseCase(client *ent.Client, logger *logger.Logger, config *configs.Config) *UserUseCase {
+func NewUserUseCase(userRepository ports.IUserRepository, authService *auth.AuthService, logger *logger.Logger) *UserUseCase {
 	return &UserUseCase{
+		userRepository: userRepository,
+		authService:    authService,
 		logger:         logger,
-		userRepository: repository.NewUserRepository(client, logger),
-		authService:    auth.NewAuthService(logger, config),
 	}
 }
 

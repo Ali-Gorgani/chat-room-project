@@ -5,6 +5,9 @@ import (
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/core/usecase"
 	_ "github.com/Ali-Gorgani/chat-room-project/services/auth-service/docs" // Import Swagger docs
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/grpc"
+	grpcHandler "github.com/Ali-Gorgani/chat-room-project/services/auth-service/grpc/grpc-handler"
+	grpcUserRepository "github.com/Ali-Gorgani/chat-room-project/services/auth-service/grpc/repository/user"
+	grpcUserService "github.com/Ali-Gorgani/chat-room-project/services/auth-service/grpc/service/user"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/handler"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/repository"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/router"
@@ -32,15 +35,24 @@ func main() {
 		db.Module,
 		configs.Module,
 		fx.Provide(
+			// http service
 			handler.NewAuthHandler,
 			router.SetupAuthRouter,
-			server.NewServer,
-			grpc.NewGRPCServer, // Provide the gRPC server
 			fx.Annotate(
 				repository.NewAuthRepository,
 				fx.As(new(ports.IAuthRepository)),
 			),
 			usecase.NewAuthUseCase,
+			server.NewServer,
+
+			// gRPC service
+			grpcHandler.NewAuthHandler,
+			fx.Annotate(
+				grpcUserRepository.NewClient,
+				fx.As(new(grpcUserRepository.IClient)),
+			),
+			grpcUserService.NewUserService,
+			grpc.NewGRPCServer,
 		),
 		fx.Invoke(func(
 			lc fx.Lifecycle,

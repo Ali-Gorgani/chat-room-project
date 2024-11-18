@@ -8,7 +8,6 @@ import (
 	grpchandler "github.com/Ali-Gorgani/chat-room-project/services/auth-service/grpc/grpc-handler"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/grpc/pkg/auth"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/configs"
-	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/ent"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/logger"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
@@ -16,19 +15,16 @@ import (
 
 type GRPCServer struct {
 	server *grpc.Server
-	client *ent.Client
 	logger *logger.Logger
 	config *configs.Config
 }
 
-func NewGRPCServer(client *ent.Client, logger *logger.Logger, config *configs.Config) *GRPCServer {
+func NewGRPCServer(grpcHandler *grpchandler.AuthHandler, logger *logger.Logger, config *configs.Config) *GRPCServer {
 	srv := grpc.NewServer()
-	authHandler := grpchandler.NewAuthHandler(client, logger, config)
-	auth.RegisterAuthServiceServer(srv, authHandler)
+	auth.RegisterAuthServiceServer(srv, grpcHandler)
 
 	return &GRPCServer{
 		server: srv,
-		client: client,
 		logger: logger,
 		config: config,
 	}

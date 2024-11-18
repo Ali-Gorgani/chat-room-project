@@ -5,9 +5,6 @@ import (
 
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/core/usecase"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/grpc/pkg/auth"
-	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/configs"
-	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/ent"
-	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/logger"
 )
 
 type AuthHandler struct {
@@ -15,9 +12,9 @@ type AuthHandler struct {
 	authUseCase *usecase.AuthUseCase
 }
 
-func NewAuthHandler(client *ent.Client, logger *logger.Logger, config *configs.Config) *AuthHandler {
+func NewAuthHandler(authUseCase *usecase.AuthUseCase) *AuthHandler {
 	return &AuthHandler{
-		authUseCase: usecase.NewAuthUseCase(client, logger, config),
+		authUseCase: authUseCase,
 	}
 }
 

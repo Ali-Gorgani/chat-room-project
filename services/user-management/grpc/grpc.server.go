@@ -8,27 +8,23 @@ import (
 	grpchandler "github.com/Ali-Gorgani/chat-room-project/services/user-management/grpc/grpc-handler"
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/grpc/pkg/user"
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/configs"
-	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/ent"
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/logger"
 	"go.uber.org/fx"
 	"google.golang.org/grpc"
 )
 
 type GRPCServer struct {
-	server *grpc.Server
-	client *ent.Client
-	logger *logger.Logger
-	config *configs.Config
+	server      *grpc.Server
+	logger      *logger.Logger
+	config      *configs.Config
 }
 
-func NewGRPCServer(client *ent.Client, logger *logger.Logger, config *configs.Config) *GRPCServer {
+func NewGRPCServer(grpcHandler *grpchandler.UserHandler, logger *logger.Logger, config *configs.Config) *GRPCServer {
 	srv := grpc.NewServer()
-	userHandler := grpchandler.NewUserHandler(client, logger, config)
-	user.RegisterUsersServiceServer(srv, userHandler)
+	user.RegisterUsersServiceServer(srv, grpcHandler)
 
 	return &GRPCServer{
 		server: srv,
-		client: client,
 		logger: logger,
 		config: config,
 	}

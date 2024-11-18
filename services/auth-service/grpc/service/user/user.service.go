@@ -2,24 +2,16 @@ package user
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/core/domain"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/grpc/repository/user"
-	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/configs"
-	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/logger"
 )
 
 type UsersService struct {
 	c user.IClient
 }
 
-func NewUserService(logger *logger.Logger, config *configs.Config) *UsersService {
-	c, err := user.NewClient(logger, config)
-	if err != nil {
-		logger.Error(fmt.Sprintf("failed to establish connection with UserService: %v", err))
-		return nil
-	}
+func NewUserService(c user.IClient) *UsersService {
 	return &UsersService{
 		c: c,
 	}

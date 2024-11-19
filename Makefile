@@ -4,6 +4,9 @@ run-auth:
 run-user:
 	cd services/user-management && go run cmd/main.go
 
+run-chat:
+	cd services/chat-service && go run cmd/main.go
+
 ## up: starts all containers in the background without forcing build
 up:
 	@echo "Starting Docker images..."
@@ -11,7 +14,7 @@ up:
 	@echo "Docker images started!"
 
 ## up_build: stops docker-compose (if running), builds all projects and starts docker compose
-up_build: build_auth build_user
+up_build: build_auth build_user build_chat
 	@echo "Stopping docker images (if running...)"
 	docker-compose down
 	@echo "Building (when required) and starting docker images..."
@@ -36,4 +39,10 @@ build_user:
 	cd ./services/user-management && env GOOS=linux CGO_ENABLED=0 go build -o bin/user-service cmd/main.go && chmod +x bin/user-service
 	@echo "Done!"
 
-.PHONY: run-auth run-user up up_build down build_auth build_user
+## build_chat: builds the chat binary as a linux executable
+build_chat:
+	@echo "Building chat binary..."
+	cd ./services/chat-service && env GOOS=linux CGO_ENABLED=0 go build -o bin/chat-service cmd/main.go && chmod +x bin/chat-service
+	@echo "Done!"
+
+.PHONY: run-auth run-user run-chat up up_build down build_auth build_user build_chat

@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/swagger"
 )
 
-func SetupAuthRouter(handler *handler.UserHandler) *fiber.App {
+func SetupAuthRouter(handler *handler.AuthHandler) *fiber.App {
 	app := fiber.New()
 
 	// Define Swagger route first to keep it unaffected by AuthMiddleware.

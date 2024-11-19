@@ -27,6 +27,21 @@ services:
     networks:
       - chatroom-network
 
+  # PostgreSQL database for the chat service
+  chat-db:
+    image: postgres:latest
+    container_name: chat-db
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: chat-db
+    ports:
+      - "5434:5432"
+    networks:
+      - chatroom-network
+
+  # User management service
   user-service:
     build:
       context: ./services/user-management
@@ -41,6 +56,7 @@ services:
     networks:
       - chatroom-network
 
+  # Auth service
   auth-service:
     build:
       context: ./services/auth-service
@@ -52,6 +68,21 @@ services:
       - "8081:8081" # gRPC server
     depends_on:
       - auth-db
+    networks:
+      - chatroom-network
+
+  # Chat service
+  chat-service:
+    build:
+      context: ./services/chat-service
+      dockerfile: Dockerfile
+    container_name: chat-service
+    restart: always
+    ports:
+      - "3002:3002"
+      # - "8082:8082" # gRPC server
+    depends_on:
+      - chat-db
     networks:
       - chatroom-network
 

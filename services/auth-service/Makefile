@@ -5,17 +5,17 @@ build_binary:
 
 # Run the service
 run_binary:
-	./user-service
+	./auth-service
 
 # Clean up the binary
 clean_binary:
-	rm -f user-service
+	rm -f auth-service
 
 swagger:
 	swag init -g cmd/main.go -d .
 
 generate_initialization:
-	@[ -n "$(name)" ] || (echo "Error: name variable is required. Usage: make generate_initialization name=User"; exit 1)
+	@[ -n "$(name)" ] || (echo "Error: name variable is required. Usage: make generate_initialization name=Auth"; exit 1)
 	go run -mod=mod entgo.io/ent/cmd/ent new "$(name)" --target ./utils/ent/schema
 
 generate_migration:

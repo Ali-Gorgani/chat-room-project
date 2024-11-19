@@ -9,12 +9,12 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-type UserHandler struct {
+type AuthHandler struct {
 	usecase usecase.AuthUseCase
 }
 
-func NewAuthHandler(usecase *usecase.AuthUseCase) *UserHandler {
-	return &UserHandler{
+func NewAuthHandler(usecase *usecase.AuthUseCase) *AuthHandler {
+	return &AuthHandler{
 		usecase: *usecase,
 	}
 }
@@ -33,7 +33,7 @@ func NewAuthHandler(usecase *usecase.AuthUseCase) *UserHandler {
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /login [post]
-func (h *UserHandler) Login(ctx *fiber.Ctx) error {
+func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 	var loginRequest LoginRequest
 	if err := ctx.BodyParser(&loginRequest); err != nil {
 		apiErr := errors.FromError(errors.NewError(errors.ErrorBadRequest, err))
@@ -71,7 +71,7 @@ func (h *UserHandler) Login(ctx *fiber.Ctx) error {
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /logout [post]
-func (h *UserHandler) Logout(ctx *fiber.Ctx) error {
+func (h *AuthHandler) Logout(ctx *fiber.Ctx) error {
 	refreshTokenCookie := ctx.Cookies("refresh_token")
 	if refreshTokenCookie == "" {
 		apiErr := errors.FromError(errors.NewError(errors.ErrorBadRequest, fmt.Errorf("refresh token cookie is missing")))
@@ -106,7 +106,7 @@ func (h *UserHandler) Logout(ctx *fiber.Ctx) error {
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /refresh-token [post]
-func (h *UserHandler) RefreshToken(ctx *fiber.Ctx) error {
+func (h *AuthHandler) RefreshToken(ctx *fiber.Ctx) error {
 	var refreshTokenRequest RefreshTokenRequest
 	if err := ctx.BodyParser(&refreshTokenRequest); err != nil {
 		apiErr := errors.FromError(errors.NewError(errors.ErrorBadRequest, err))
@@ -138,7 +138,7 @@ func (h *UserHandler) RefreshToken(ctx *fiber.Ctx) error {
 // @Failure 404 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
 // @Router /revoke-token [post]
-func (h *UserHandler) RevokeToken(ctx *fiber.Ctx) error {
+func (h *AuthHandler) RevokeToken(ctx *fiber.Ctx) error {
 	var revokeTokenRequest RevokeTokenRequest
 	if err := ctx.BodyParser(&revokeTokenRequest); err != nil {
 		apiErr := errors.FromError(errors.NewError(errors.ErrorBadRequest, err))

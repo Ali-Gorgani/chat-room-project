@@ -294,7 +294,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "refresh_token": {
                     "type": "string"

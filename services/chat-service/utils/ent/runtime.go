@@ -2,8 +2,25 @@
 
 package ent
 
+import (
+	"time"
+
+	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/ent/chat"
+	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/ent/schema"
+)
+
 // The init function reads all schema descriptors with runtime code
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	chatFields := schema.Chat{}.Fields()
+	_ = chatFields
+	// chatDescName is the schema descriptor for name field.
+	chatDescName := chatFields[1].Descriptor()
+	// chat.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	chat.NameValidator = chatDescName.Validators[0].(func(string) error)
+	// chatDescCreatedAt is the schema descriptor for created_at field.
+	chatDescCreatedAt := chatFields[2].Descriptor()
+	// chat.DefaultCreatedAt holds the default value on creation for the created_at field.
+	chat.DefaultCreatedAt = chatDescCreatedAt.Default.(func() time.Time)
 }

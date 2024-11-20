@@ -3,12 +3,13 @@ package errors
 import "errors"
 
 var (
-	ErrorBadRequest   = New("Bad Request")
-	ErrorUnauthorized = New("Unauthorized")
-	ErrorNotFound     = New("Not Found")
-	ErrorInternal     = New("Internal Server Error")
-	ErrorConflict     = New("Conflict")
-	ErrorForbidden    = New("Forbidden")
+	ErrorBadRequest      = New("Bad Request")
+	ErrorUnauthorized    = New("Unauthorized")
+	ErrorNotFound        = New("Not Found")
+	ErrorInternal        = New("Internal Server Error")
+	ErrorConflict        = New("Conflict")
+	ErrorForbidden       = New("Forbidden")
+	ErrorUpgradeRequired = New("WebSocket upgrade required")
 )
 
 type Error struct {

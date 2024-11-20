@@ -32,7 +32,7 @@ type AuthMutation struct {
 	config
 	op            Op
 	typ           string
-	id            *int
+	id            *string
 	user_id       *uint
 	adduser_id    *int
 	refresh_token *string
@@ -65,7 +65,7 @@ func newAuthMutation(c config, op Op, opts ...authOption) *AuthMutation {
 }
 
 // withAuthID sets the ID field of the mutation.
-func withAuthID(id int) authOption {
+func withAuthID(id string) authOption {
 	return func(m *AuthMutation) {
 		var (
 			err   error
@@ -115,9 +115,15 @@ func (m AuthMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Auth entities.
+func (m *AuthMutation) SetID(id string) {
+	m.id = &id
+}
+
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *AuthMutation) ID() (id int, exists bool) {
+func (m *AuthMutation) ID() (id string, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -128,12 +134,12 @@ func (m *AuthMutation) ID() (id int, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *AuthMutation) IDs(ctx context.Context) ([]int, error) {
+func (m *AuthMutation) IDs(ctx context.Context) ([]string, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []int{id}, nil
+			return []string{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):

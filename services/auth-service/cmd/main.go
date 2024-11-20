@@ -15,6 +15,7 @@ import (
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/configs"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/db"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/logger"
+	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/redis"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
 )
@@ -34,12 +35,13 @@ func main() {
 		logger.Module,
 		db.Module,
 		configs.Module,
+		redis.Module,
 		fx.Provide(
 			// http service
 			handler.NewAuthHandler,
 			router.SetupAuthRouter,
 			fx.Annotate(
-				repository.NewAuthRepository,
+				repository.NewAuthRepositoryWithRedis,
 				fx.As(new(ports.IAuthRepository)),
 			),
 			usecase.NewAuthUseCase,

@@ -16,7 +16,7 @@ import (
 type Auth struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
+	ID string `json:"id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID uint `json:"user_id,omitempty"`
 	// RefreshToken holds the value of the "refresh_token" field.
@@ -37,9 +37,9 @@ func (*Auth) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case auth.FieldIsRevoked:
 			values[i] = new(sql.NullBool)
-		case auth.FieldID, auth.FieldUserID:
+		case auth.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case auth.FieldRefreshToken:
+		case auth.FieldID, auth.FieldRefreshToken:
 			values[i] = new(sql.NullString)
 		case auth.FieldCreatedAt, auth.FieldExpiresAt:
 			values[i] = new(sql.NullTime)
@@ -59,11 +59,11 @@ func (a *Auth) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case auth.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field id", values[i])
+			} else if value.Valid {
+				a.ID = value.String
 			}
-			a.ID = int(value.Int64)
 		case auth.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])

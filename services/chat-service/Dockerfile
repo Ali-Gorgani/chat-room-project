@@ -9,5 +9,6 @@ COPY bin/chat-service /app
 COPY config.example.yaml /app
 COPY utils/ent/migrate/migrations /app/utils/ent/migrate/migrations
 COPY docs /app/docs 
+COPY views /app/views
 
 CMD [ "/app/chat-service" ]

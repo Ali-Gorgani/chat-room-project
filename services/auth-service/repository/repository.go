@@ -27,8 +27,9 @@ func NewAuthRepository(client *ent.Client, logger *logger.Logger) ports.IAuthRep
 
 // CreateToken is a method to create a token
 func (r *AuthRepository) CreateToken(ctx context.Context, auth domain.Auth) (domain.Auth, error) {
-	token, err := r.client.Auth.
+	_, err := r.client.Auth.
 		Create().
+		SetID(auth.ID).
 		SetUserID(auth.User.ID).
 		SetRefreshToken(auth.RefreshToken).
 		SetExpiresAt(auth.RefreshTokenExpiresAt).
@@ -41,12 +42,43 @@ func (r *AuthRepository) CreateToken(ctx context.Context, auth domain.Auth) (dom
 		r.logger.Error(fmt.Sprintf("failed to create token: %v", err))
 		return domain.Auth{}, errors.NewError(errors.ErrorInternal, err)
 	}
-	auth.ID = uint(token.ID)
 	return auth, nil
 }
 
-// GetToken is a method to get a token
-func (r *AuthRepository) GetToken(ctx context.Context, auth domain.Auth) (domain.Auth, error) {
+// GetToken is a method to get a token by token id
+func (r *AuthRepository) GetTokenByID(ctx context.Context, auth domain.Auth) (domain.Auth, error) {
+	token, err := r.client.Auth.
+		Query().
+		Where(entAuth.IDEQ(auth.ID)).
+		Only(ctx)
+	if ent.IsNotFound(err) {
+		r.logger.Warn(fmt.Sprintf("token not found: %v", err))
+		return domain.Auth{}, errors.NewError(errors.ErrorNotFound, err)
+	}
+	if err != nil {
+		r.logger.Error(fmt.Sprintf("failed to retrieve token: %v", err))
+		return domain.Auth{}, errors.NewError(errors.ErrorInternal, err)
+	}
+	auth = domain.Auth{
+		ID:                    token.ID,
+		RefreshToken:          token.RefreshToken,
+		RefreshTokenExpiresAt: token.ExpiresAt,
+		RefreshTokenIsRevoked: token.IsRevoked,
+		User: domain.User{
+			ID: token.UserID,
+		},
+		Claims: domain.Claims{
+			ID:        token.UserID,
+			SessionID: token.ID,
+			IssuedAt:  token.CreatedAt,
+			ExpiresAt: token.ExpiresAt,
+		},
+	}
+	return auth, nil
+}
+
+// GetToken is a method to get a token by refresh token
+func (r *AuthRepository) GetTokenByRefreshToken(ctx context.Context, auth domain.Auth) (domain.Auth, error) {
 	token, err := r.client.Auth.
 		Query().
 		Where(entAuth.RefreshTokenEQ(auth.RefreshToken)).
@@ -60,7 +92,7 @@ func (r *AuthRepository) GetToken(ctx context.Context, auth domain.Auth) (domain
 		return domain.Auth{}, errors.NewError(errors.ErrorInternal, err)
 	}
 	auth = domain.Auth{
-		ID:                    uint(token.ID),
+		ID:                    token.ID,
 		RefreshToken:          token.RefreshToken,
 		RefreshTokenExpiresAt: token.ExpiresAt,
 		RefreshTokenIsRevoked: token.IsRevoked,
@@ -69,6 +101,7 @@ func (r *AuthRepository) GetToken(ctx context.Context, auth domain.Auth) (domain
 		},
 		Claims: domain.Claims{
 			ID:        token.UserID,
+			SessionID: token.ID,
 			IssuedAt:  token.CreatedAt,
 			ExpiresAt: token.ExpiresAt,
 		},
@@ -79,7 +112,7 @@ func (r *AuthRepository) GetToken(ctx context.Context, auth domain.Auth) (domain
 // DeleteToken is a method to delete a token
 func (r *AuthRepository) DeleteToken(ctx context.Context, auth domain.Auth) error {
 	err := r.client.Auth.
-		DeleteOneID(int(auth.ID)).
+		DeleteOneID(auth.ID).
 		Exec(ctx)
 	if ent.IsNotFound(err) {
 		r.logger.Warn(fmt.Sprintf("token not found for deletion: %v", err))
@@ -93,9 +126,9 @@ func (r *AuthRepository) DeleteToken(ctx context.Context, auth domain.Auth) erro
 }
 
 // RevokedToken is a method to revoke a token
-func (r *AuthRepository) RevokedToken(ctx context.Context, auth domain.Auth) error {
+func (r *AuthRepository) RevokeToken(ctx context.Context, auth domain.Auth) error {
 	_, err := r.client.Auth.
-		UpdateOneID(int(auth.ID)).
+		UpdateOneID(auth.ID).
 		SetIsRevoked(true).
 		Save(ctx)
 	if ent.IsNotFound(err) {

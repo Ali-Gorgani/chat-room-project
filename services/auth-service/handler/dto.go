@@ -14,7 +14,7 @@ type UserResponse struct {
 }
 
 type LoginResponse struct {
-	ID                    uint         `json:"id"`
+	ID                    string       `json:"id"`
 	AccessToken           string       `json:"access_token"`
 	AccessTokenExpiresAt  time.Time    `json:"access_token_expires_at"`
 	RefreshToken          string       `json:"refresh_token"`

@@ -15,7 +15,11 @@ type Auth struct {
 // Fields of the Auth.
 func (Auth) Fields() []ent.Field {
 	return []ent.Field{
-		field.Uint("user_id").Positive(),
+		field.String("id").
+			NotEmpty().
+			Unique(),
+		field.Uint("user_id").
+			Positive(),
 		field.String("refresh_token"),
 		field.Bool("is_revoked").
 			Default(false),

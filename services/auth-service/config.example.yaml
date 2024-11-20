@@ -19,3 +19,8 @@ jwt:
   secret_key: "YbECVX6TtPbIrdHi4VTR67jaxaqiYALM"
   access_token_duration: 15m
   refresh_token_duration: 24h
+
+redis:
+  Addr: "auth-redis:6379"
+  password: ""
+  db: 0

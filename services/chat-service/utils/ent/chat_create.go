@@ -4,7 +4,9 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
@@ -18,6 +20,32 @@ type ChatCreate struct {
 	hooks    []Hook
 }
 
+// SetName sets the "name" field.
+func (cc *ChatCreate) SetName(s string) *ChatCreate {
+	cc.mutation.SetName(s)
+	return cc
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (cc *ChatCreate) SetCreatedAt(t time.Time) *ChatCreate {
+	cc.mutation.SetCreatedAt(t)
+	return cc
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cc *ChatCreate) SetNillableCreatedAt(t *time.Time) *ChatCreate {
+	if t != nil {
+		cc.SetCreatedAt(*t)
+	}
+	return cc
+}
+
+// SetID sets the "id" field.
+func (cc *ChatCreate) SetID(i int) *ChatCreate {
+	cc.mutation.SetID(i)
+	return cc
+}
+
 // Mutation returns the ChatMutation object of the builder.
 func (cc *ChatCreate) Mutation() *ChatMutation {
 	return cc.mutation
@@ -25,6 +53,7 @@ func (cc *ChatCreate) Mutation() *ChatMutation {
 
 // Save creates the Chat in the database.
 func (cc *ChatCreate) Save(ctx context.Context) (*Chat, error) {
+	cc.defaults()
 	return withHooks(ctx, cc.sqlSave, cc.mutation, cc.hooks)
 }
 
@@ -50,8 +79,27 @@ func (cc *ChatCreate) ExecX(ctx context.Context) {
 	}
 }
 
+// defaults sets the default values of the builder before save.
+func (cc *ChatCreate) defaults() {
+	if _, ok := cc.mutation.CreatedAt(); !ok {
+		v := chat.DefaultCreatedAt()
+		cc.mutation.SetCreatedAt(v)
+	}
+}
+
 // check runs all checks and user-defined validators on the builder.
 func (cc *ChatCreate) check() error {
+	if _, ok := cc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "Chat.name"`)}
+	}
+	if v, ok := cc.mutation.Name(); ok {
+		if err := chat.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Chat.name": %w`, err)}
+		}
+	}
+	if _, ok := cc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Chat.created_at"`)}
+	}
 	return nil
 }
 
@@ -66,8 +114,10 @@ func (cc *ChatCreate) sqlSave(ctx context.Context) (*Chat, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
+	}
 	cc.mutation.id = &_node.ID
 	cc.mutation.done = true
 	return _node, nil
@@ -78,6 +128,18 @@ func (cc *ChatCreate) createSpec() (*Chat, *sqlgraph.CreateSpec) {
 		_node = &Chat{config: cc.config}
 		_spec = sqlgraph.NewCreateSpec(chat.Table, sqlgraph.NewFieldSpec(chat.FieldID, field.TypeInt))
 	)
+	if id, ok := cc.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
+	if value, ok := cc.mutation.Name(); ok {
+		_spec.SetField(chat.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := cc.mutation.CreatedAt(); ok {
+		_spec.SetField(chat.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
+	}
 	return _node, _spec
 }
 
@@ -99,6 +161,7 @@ func (ccb *ChatCreateBulk) Save(ctx context.Context) ([]*Chat, error) {
 	for i := range ccb.builders {
 		func(i int, root context.Context) {
 			builder := ccb.builders[i]
+			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*ChatMutation)
 				if !ok {
@@ -125,7 +188,7 @@ func (ccb *ChatCreateBulk) Save(ctx context.Context) ([]*Chat, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
 					id := specs[i].ID.Value.(int64)
 					nodes[i].ID = int(id)
 				}

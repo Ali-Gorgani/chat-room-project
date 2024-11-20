@@ -14,7 +14,7 @@ definitions:
       access_token_expires_at:
         type: string
       id:
-        type: integer
+        type: string
       refresh_token:
         type: string
       refresh_token_expires_at:

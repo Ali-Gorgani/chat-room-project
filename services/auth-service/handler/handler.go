@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"fmt"
-
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/core/domain"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/core/usecase"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/errors"
@@ -47,15 +45,6 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 	}
 	res := DomainAuthToLoginResponse(loginResponse)
 
-	ctx.Cookie(&fiber.Cookie{
-		Name:     "refresh_token",
-		Value:    res.RefreshToken,
-		Expires:  res.RefreshTokenExpiresAt,
-		HTTPOnly: true,
-		Secure:   true,
-		Path:     "/",
-	})
-
 	return ctx.Status(fiber.StatusOK).JSON(res)
 }
 
@@ -72,23 +61,11 @@ func (h *AuthHandler) Login(ctx *fiber.Ctx) error {
 // @Failure 500 {object} map[string]interface{}
 // @Router /logout [post]
 func (h *AuthHandler) Logout(ctx *fiber.Ctx) error {
-	refreshTokenCookie := ctx.Cookies("refresh_token")
-	if refreshTokenCookie == "" {
-		apiErr := errors.FromError(errors.NewError(errors.ErrorBadRequest, fmt.Errorf("refresh token cookie is missing")))
-		return ctx.Status(apiErr.Status).JSON(apiErr)
-	}
-
-	auth := domain.Auth{
-		RefreshToken: refreshTokenCookie,
-	}
-
-	err := h.usecase.Logout(ctx.Context(), auth)
+	err := h.usecase.Logout(ctx.Context(), domain.Auth{})
 	if err != nil {
 		apiErr := errors.FromError(err)
 		return ctx.Status(apiErr.Status).JSON(apiErr)
 	}
-
-	ctx.ClearCookie("refresh_token")
 
 	return ctx.Status(fiber.StatusNoContent).JSON(nil)
 }

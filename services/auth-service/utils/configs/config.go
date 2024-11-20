@@ -21,6 +21,7 @@ type Config struct {
 	GRPC   GRPCConfig   `mapstructure:"grpc"`
 	PSQL   PSQLConfig   `mapstructure:"postgres"`
 	JWT    JWTConfig    `mapstructure:"jwt"`
+	Redis  Redis        `mapstructure:"redis"`
 }
 
 type ServerConfig struct {
@@ -48,6 +49,12 @@ type JWTConfig struct {
 	SecretKey            string        `mapstructure:"secret_key"`
 	AccessTokenDuration  time.Duration `mapstructure:"access_token_duration"`
 	RefreshTokenDuration time.Duration `mapstructure:"refresh_token_duration"`
+}
+
+type Redis struct {
+	Addr     string `mapstructure:"addr"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
 }
 
 // NewConfig creates a new Config instance.
@@ -98,6 +105,10 @@ func LoadConfig(path string, logger *logger.Logger) (*Config, error) {
 		return nil, err
 	}
 
+	if err := validateRedisConfig(config.Redis); err != nil {
+		return nil, err
+	}
+
 	return &config, nil
 }
 
@@ -120,6 +131,10 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("jwt.secret_key", "abcd1234abcd1234abcd1234")
 	v.SetDefault("jwt.access_token_duration", "15m")
 	v.SetDefault("jwt.refresh_token_duration", "24h")
+
+	v.SetDefault("redis.addr", "localhost:6379")
+	v.SetDefault("redis.password", "")
+	v.SetDefault("redis.db", 0)
 }
 
 // validateServerConfig ensures that essential server config values are present.
@@ -177,6 +192,14 @@ func validateJWTConfig(jwtConfig JWTConfig) error {
 	}
 	if jwtConfig.RefreshTokenDuration == 0 {
 		return fmt.Errorf("jwt refresh token duration is required")
+	}
+	return nil
+}
+
+// validateRedisConfig ensures that essential Redis config values are present.
+func validateRedisConfig(redisConfig Redis) error {
+	if redisConfig.Addr == "" {
+		return fmt.Errorf("redis address is required")
 	}
 	return nil
 }

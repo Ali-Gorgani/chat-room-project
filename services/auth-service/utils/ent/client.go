@@ -257,7 +257,7 @@ func (c *AuthClient) UpdateOne(a *Auth) *AuthUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *AuthClient) UpdateOneID(id int) *AuthUpdateOne {
+func (c *AuthClient) UpdateOneID(id string) *AuthUpdateOne {
 	mutation := newAuthMutation(c.config, OpUpdateOne, withAuthID(id))
 	return &AuthUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -274,7 +274,7 @@ func (c *AuthClient) DeleteOne(a *Auth) *AuthDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *AuthClient) DeleteOneID(id int) *AuthDeleteOne {
+func (c *AuthClient) DeleteOneID(id string) *AuthDeleteOne {
 	builder := c.Delete().Where(auth.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -291,12 +291,12 @@ func (c *AuthClient) Query() *AuthQuery {
 }
 
 // Get returns a Auth entity by its id.
-func (c *AuthClient) Get(ctx context.Context, id int) (*Auth, error) {
+func (c *AuthClient) Get(ctx context.Context, id string) (*Auth, error) {
 	return c.Query().Where(auth.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *AuthClient) GetX(ctx context.Context, id int) *Auth {
+func (c *AuthClient) GetX(ctx context.Context, id string) *Auth {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

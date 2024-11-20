@@ -4,6 +4,8 @@ import (
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/core/ports"
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/core/usecase"
 	_ "github.com/Ali-Gorgani/chat-room-project/services/chat-service/docs" // Import Swagger docs
+	grpcAuthRepository "github.com/Ali-Gorgani/chat-room-project/services/chat-service/grpc/repository/auth"
+	grpcAuthService "github.com/Ali-Gorgani/chat-room-project/services/chat-service/grpc/service/auth"
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/handler"
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/repository"
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/router"
@@ -11,6 +13,8 @@ import (
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/configs"
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/db"
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/logger"
+	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/redis"
+	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/websocket"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
 )
@@ -30,6 +34,7 @@ func main() {
 		logger.Module,
 		db.Module,
 		configs.Module,
+		redis.Module,
 		fx.Provide(
 			// http service
 			handler.NewChatHandler,
@@ -40,6 +45,14 @@ func main() {
 			),
 			usecase.NewChatUseCase,
 			server.NewServer,
+			websocket.NewHub,
+
+			// gRPC service
+			fx.Annotate(
+				grpcAuthRepository.NewClient,
+				fx.As(new(grpcAuthRepository.IClient)),
+			),
+			grpcAuthService.NewAuthService,
 		),
 		fx.Invoke(func(
 			lc fx.Lifecycle,

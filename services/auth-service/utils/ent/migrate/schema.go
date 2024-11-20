@@ -10,7 +10,7 @@ import (
 var (
 	// AuthsColumns holds the columns for the "auths" table.
 	AuthsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "id", Type: field.TypeString, Unique: true},
 		{Name: "user_id", Type: field.TypeUint},
 		{Name: "refresh_token", Type: field.TypeString},
 		{Name: "is_revoked", Type: field.TypeBool, Default: false},

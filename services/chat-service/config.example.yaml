@@ -14,3 +14,8 @@ postgres:
   password: "secret"
   database: "chat-db"
   ssl_mode: "disable"
+
+redis:
+  Addr: "chat-redis:6379"
+  password: ""
+  db: 0

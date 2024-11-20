@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -24,6 +25,34 @@ type ChatUpdate struct {
 // Where appends a list predicates to the ChatUpdate builder.
 func (cu *ChatUpdate) Where(ps ...predicate.Chat) *ChatUpdate {
 	cu.mutation.Where(ps...)
+	return cu
+}
+
+// SetName sets the "name" field.
+func (cu *ChatUpdate) SetName(s string) *ChatUpdate {
+	cu.mutation.SetName(s)
+	return cu
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (cu *ChatUpdate) SetNillableName(s *string) *ChatUpdate {
+	if s != nil {
+		cu.SetName(*s)
+	}
+	return cu
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (cu *ChatUpdate) SetCreatedAt(t time.Time) *ChatUpdate {
+	cu.mutation.SetCreatedAt(t)
+	return cu
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cu *ChatUpdate) SetNillableCreatedAt(t *time.Time) *ChatUpdate {
+	if t != nil {
+		cu.SetCreatedAt(*t)
+	}
 	return cu
 }
 
@@ -59,7 +88,20 @@ func (cu *ChatUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (cu *ChatUpdate) check() error {
+	if v, ok := cu.mutation.Name(); ok {
+		if err := chat.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Chat.name": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (cu *ChatUpdate) sqlSave(ctx context.Context) (n int, err error) {
+	if err := cu.check(); err != nil {
+		return n, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(chat.Table, chat.Columns, sqlgraph.NewFieldSpec(chat.FieldID, field.TypeInt))
 	if ps := cu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
@@ -67,6 +109,12 @@ func (cu *ChatUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cu.mutation.Name(); ok {
+		_spec.SetField(chat.FieldName, field.TypeString, value)
+	}
+	if value, ok := cu.mutation.CreatedAt(); ok {
+		_spec.SetField(chat.FieldCreatedAt, field.TypeTime, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, cu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -86,6 +134,34 @@ type ChatUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *ChatMutation
+}
+
+// SetName sets the "name" field.
+func (cuo *ChatUpdateOne) SetName(s string) *ChatUpdateOne {
+	cuo.mutation.SetName(s)
+	return cuo
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (cuo *ChatUpdateOne) SetNillableName(s *string) *ChatUpdateOne {
+	if s != nil {
+		cuo.SetName(*s)
+	}
+	return cuo
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (cuo *ChatUpdateOne) SetCreatedAt(t time.Time) *ChatUpdateOne {
+	cuo.mutation.SetCreatedAt(t)
+	return cuo
+}
+
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (cuo *ChatUpdateOne) SetNillableCreatedAt(t *time.Time) *ChatUpdateOne {
+	if t != nil {
+		cuo.SetCreatedAt(*t)
+	}
+	return cuo
 }
 
 // Mutation returns the ChatMutation object of the builder.
@@ -133,7 +209,20 @@ func (cuo *ChatUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (cuo *ChatUpdateOne) check() error {
+	if v, ok := cuo.mutation.Name(); ok {
+		if err := chat.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Chat.name": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (cuo *ChatUpdateOne) sqlSave(ctx context.Context) (_node *Chat, err error) {
+	if err := cuo.check(); err != nil {
+		return _node, err
+	}
 	_spec := sqlgraph.NewUpdateSpec(chat.Table, chat.Columns, sqlgraph.NewFieldSpec(chat.FieldID, field.TypeInt))
 	id, ok := cuo.mutation.ID()
 	if !ok {
@@ -158,6 +247,12 @@ func (cuo *ChatUpdateOne) sqlSave(ctx context.Context) (_node *Chat, err error) 
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cuo.mutation.Name(); ok {
+		_spec.SetField(chat.FieldName, field.TypeString, value)
+	}
+	if value, ok := cuo.mutation.CreatedAt(); ok {
+		_spec.SetField(chat.FieldCreatedAt, field.TypeTime, value)
 	}
 	_node = &Chat{config: cuo.config}
 	_spec.Assign = _node.assignValues

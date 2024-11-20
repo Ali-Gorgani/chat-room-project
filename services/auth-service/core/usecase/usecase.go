@@ -12,6 +12,7 @@ import (
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/hash"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/jwt"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/logger"
+	"github.com/google/uuid"
 )
 
 type AuthUseCase struct {
@@ -55,6 +56,10 @@ func (a *AuthUseCase) Login(ctx context.Context, auth domain.Auth) (domain.Auth,
 		Duration: a.config.JWT.AccessTokenDuration,
 	}
 
+	sessionID := uuid.New().String()
+	auth.ID = sessionID
+	auth.Claims.SessionID = sessionID
+
 	auth, err = a.CreateToken(ctx, auth)
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("error in creating access token: %v", err))
@@ -92,24 +97,10 @@ func (a *AuthUseCase) Logout(ctx context.Context, auth domain.Auth) error {
 
 	// verify access token
 	auth.AccessToken = contextToken
-	accessTokenClaims, err := a.VerifyToken(ctx, auth)
+	auth, err := a.VerifyToken(ctx, auth)
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("error in verifying token: %v", err))
 		return err
-	}
-
-	// get refresh token from database
-	auth, err = a.authRepository.GetToken(ctx, auth)
-	if err != nil {
-		a.logger.Error(fmt.Sprintf("error in getting token from database: %v", err))
-		return err
-	}
-
-	// compare access token and refresh token are for the same person
-	if accessTokenClaims.Claims.ID != auth.Claims.ID {
-		err := fmt.Errorf("access token and refresh token are not for the same person")
-		a.logger.Error(err.Error())
-		return errors.NewError(errors.ErrorForbidden, err)
 	}
 
 	// delete token by finding it via RefreshToken in the database
@@ -119,12 +110,15 @@ func (a *AuthUseCase) Logout(ctx context.Context, auth domain.Auth) error {
 		return err
 	}
 
+	// clear token from context
+	ctx = context.WithValue(ctx, "token", "")
+
 	return nil
 }
 
 func (a *AuthUseCase) RefreshToken(ctx context.Context, auth domain.Auth) (domain.Auth, error) {
 	// get refresh token from database
-	auth, err := a.authRepository.GetToken(ctx, auth)
+	auth, err := a.authRepository.GetTokenByRefreshToken(ctx, auth)
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("error in getting token from database: %v", err))
 		return domain.Auth{}, err
@@ -165,7 +159,7 @@ func (a *AuthUseCase) RevokeToken(ctx context.Context, auth domain.Auth) error {
 	}
 
 	// get refresh token from database
-	auth, err = a.authRepository.GetToken(ctx, auth)
+	auth, err = a.authRepository.GetTokenByRefreshToken(ctx, auth)
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("error in getting token from database: %v", err))
 		return err
@@ -186,7 +180,7 @@ func (a *AuthUseCase) RevokeToken(ctx context.Context, auth domain.Auth) error {
 	}
 
 	// revoke access token
-	err = a.authRepository.RevokedToken(ctx, auth)
+	err = a.authRepository.RevokeToken(ctx, auth)
 	if err != nil {
 		a.logger.Error(fmt.Sprintf("error in revoking token: %v", err))
 		return err
@@ -208,11 +202,12 @@ func (a *AuthUseCase) HashPassword(ctx context.Context, auth domain.Auth) (domai
 func (a *AuthUseCase) CreateToken(ctx context.Context, auth domain.Auth) (domain.Auth, error) {
 	secretKey := a.config.JWT.SecretKey
 	userClaims := jwt.UserClaims{
-		ID:       auth.Claims.ID,
-		Username: auth.Claims.Username,
-		Email:    auth.Claims.Email,
-		Role:     auth.Claims.Role,
-		Duration: auth.Claims.Duration,
+		ID:        auth.Claims.ID,
+		SessionID: auth.Claims.SessionID,
+		Username:  auth.Claims.Username,
+		Email:     auth.Claims.Email,
+		Role:      auth.Claims.Role,
+		Duration:  auth.Claims.Duration,
 	}
 	claims, err := jwt.NewUserClaims(userClaims)
 	if err != nil {
@@ -225,6 +220,7 @@ func (a *AuthUseCase) CreateToken(ctx context.Context, auth domain.Auth) (domain
 		return domain.Auth{}, errors.NewError(errors.ErrorInternal, err)
 	}
 	auth = domain.Auth{
+		ID:                   claims.RegisteredClaims.ID,
 		AccessToken:          accessToken,
 		AccessTokenExpiresAt: claims.RegisteredClaims.ExpiresAt.Time,
 		User: domain.User{
@@ -239,6 +235,7 @@ func (a *AuthUseCase) CreateToken(ctx context.Context, auth domain.Auth) (domain
 			Email:     claims.Email,
 			Role:      claims.Role,
 			Duration:  claims.Duration,
+			SessionID: claims.RegisteredClaims.ID,
 			IssuedAt:  claims.RegisteredClaims.IssuedAt.Time,
 			ExpiresAt: claims.RegisteredClaims.ExpiresAt.Time,
 		},
@@ -254,6 +251,7 @@ func (a *AuthUseCase) VerifyToken(ctx context.Context, auth domain.Auth) (domain
 		return domain.Auth{}, errors.NewError(errors.ErrorUnauthorized, err)
 	}
 	auth = domain.Auth{
+		ID:                   claims.SessionID,
 		AccessToken:          auth.AccessToken,
 		AccessTokenExpiresAt: claims.RegisteredClaims.ExpiresAt.Time,
 		User: domain.User{
@@ -268,6 +266,7 @@ func (a *AuthUseCase) VerifyToken(ctx context.Context, auth domain.Auth) (domain
 			Email:     claims.Email,
 			Role:      claims.Role,
 			Duration:  claims.Duration,
+			SessionID: claims.RegisteredClaims.ID,
 			IssuedAt:  claims.RegisteredClaims.IssuedAt.Time,
 			ExpiresAt: claims.RegisteredClaims.ExpiresAt.Time,
 		},

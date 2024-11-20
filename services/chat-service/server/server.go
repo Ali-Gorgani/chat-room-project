@@ -23,6 +23,7 @@ func NewServer(app *fiber.App, logger *logger.Logger, config *configs.Config) *S
 		config: config,
 	}
 }
+
 func (srv *Server) SetupChatServer(lc fx.Lifecycle) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {

@@ -258,6 +258,18 @@ func (cq *ChatQuery) Clone() *ChatQuery {
 
 // GroupBy is used to group vertices by one or more fields/columns.
 // It is often used with aggregate functions, like: count, max, mean, min, sum.
+//
+// Example:
+//
+//	var v []struct {
+//		Name string `json:"name,omitempty"`
+//		Count int `json:"count,omitempty"`
+//	}
+//
+//	client.Chat.Query().
+//		GroupBy(chat.FieldName).
+//		Aggregate(ent.Count()).
+//		Scan(ctx, &v)
 func (cq *ChatQuery) GroupBy(field string, fields ...string) *ChatGroupBy {
 	cq.ctx.Fields = append([]string{field}, fields...)
 	grbuild := &ChatGroupBy{build: cq}
@@ -269,6 +281,16 @@ func (cq *ChatQuery) GroupBy(field string, fields ...string) *ChatGroupBy {
 
 // Select allows the selection one or more fields/columns for the given query,
 // instead of selecting all fields in the entity.
+//
+// Example:
+//
+//	var v []struct {
+//		Name string `json:"name,omitempty"`
+//	}
+//
+//	client.Chat.Query().
+//		Select(chat.FieldName).
+//		Scan(ctx, &v)
 func (cq *ChatQuery) Select(fields ...string) *ChatSelect {
 	cq.ctx.Fields = append(cq.ctx.Fields, fields...)
 	sbuild := &ChatSelect{ChatQuery: cq}

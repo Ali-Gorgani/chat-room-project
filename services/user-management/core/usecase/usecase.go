@@ -98,7 +98,7 @@ func (u *UserUseCase) UpdateUser(ctx context.Context, user domain.User) (domain.
 		return domain.User{}, err
 	}
 
-	if userClaims.ID != user.ID {
+	if userClaims.ID != user.ID && userClaims.Role.Name != "admin" {
 		return domain.User{}, errors.NewError(errors.ErrorForbidden, fmt.Errorf("user does not have permission to update user"))
 	}
 
@@ -143,7 +143,13 @@ func (u *UserUseCase) DeleteUser(ctx context.Context, user domain.User) error {
 	}
 
 	// verify token with auth service and get user claims
-	_, err := u.authService.VerifyToken(ctx, domain.Auth{AccessToken: contextToken})
+	claims, err := u.authService.VerifyToken(ctx, domain.Auth{AccessToken: contextToken})
+	if err != nil {
+		u.logger.Error(err.Error())
+		return err
+	}
+
+	userClaims, err := u.userRepository.FindUserByIDWithTransaction(ctx, claims)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return err
@@ -155,15 +161,11 @@ func (u *UserUseCase) DeleteUser(ctx context.Context, user domain.User) error {
 		return err
 	}
 
-	if !u.hasPermission(existingUser, "delete") {
+	if !u.hasPermission(userClaims, "delete") {
 		return errors.NewError(errors.ErrorForbidden, fmt.Errorf("user does not have permission to delete user"))
 	}
 
-	user.ID = existingUser.ID
-	user.Role.ID = existingUser.Role.ID
-	user.Profile.ID = existingUser.Profile.ID
-
-	err = u.userRepository.DeleteUserWithTransaction(ctx, user)
+	err = u.userRepository.DeleteUserWithTransaction(ctx, existingUser)
 	if err != nil {
 		u.logger.Error(err.Error())
 		return err

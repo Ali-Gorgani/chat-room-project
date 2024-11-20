@@ -8,7 +8,8 @@ import (
 
 type IAuthRepository interface {
 	CreateToken(ctx context.Context, auth domain.Auth) (domain.Auth, error)
-	GetToken(ctx context.Context, auth domain.Auth) (domain.Auth, error)
+	GetTokenByID(ctx context.Context, auth domain.Auth) (domain.Auth, error)
+	GetTokenByRefreshToken(ctx context.Context, auth domain.Auth) (domain.Auth, error)
 	DeleteToken(ctx context.Context, auth domain.Auth) error
-	RevokedToken(ctx context.Context, auth domain.Auth) error
+	RevokeToken(ctx context.Context, auth domain.Auth) error
 }

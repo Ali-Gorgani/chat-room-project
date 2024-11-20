@@ -19,6 +19,7 @@ type Config struct {
 	Server ServerConfig `mapstructure:"server"`
 	GRPC   GRPCConfig   `mapstructure:"grpc"`
 	PSQL   PSQLConfig   `mapstructure:"postgres"`
+	Redis  Redis        `mapstructure:"redis"`
 }
 
 type ServerConfig struct {
@@ -40,6 +41,12 @@ type PSQLConfig struct {
 	Password string `mapstructure:"password"`
 	Database string `mapstructure:"database"`
 	SSLMode  string `mapstructure:"ssl_mode"`
+}
+
+type Redis struct {
+	Addr     string `mapstructure:"addr"`
+	Password string `mapstructure:"password"`
+	DB       int    `mapstructure:"db"`
 }
 
 // NewConfig creates a new Config instance.
@@ -86,6 +93,10 @@ func LoadConfig(path string, logger *logger.Logger) (*Config, error) {
 		return nil, err
 	}
 
+	if err := validateRedisConfig(config.Redis); err != nil {
+		return nil, err
+	}
+
 	return &config, nil
 }
 
@@ -104,6 +115,10 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("postgres.password", "secret")
 	v.SetDefault("postgres.database", "chat-db")
 	v.SetDefault("postgres.ssl_mode", "disable")
+
+	v.SetDefault("redis.addr", "localhost:6379")
+	v.SetDefault("redis.password", "")
+	v.SetDefault("redis.db", 0)
 }
 
 // validateServerConfig ensures that essential server config values are present.
@@ -147,6 +162,14 @@ func validatePSQLConfig(psqlConfig PSQLConfig) error {
 	}
 	if psqlConfig.Database == "" {
 		return fmt.Errorf("database name is required")
+	}
+	return nil
+}
+
+// validateRedisConfig ensures that essential Redis config values are present.
+func validateRedisConfig(redisConfig Redis) error {
+	if redisConfig.Addr == "" {
+		return fmt.Errorf("redis address is required")
 	}
 	return nil
 }

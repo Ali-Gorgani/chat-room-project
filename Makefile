@@ -14,7 +14,7 @@ up:
 	@echo "Docker images started!"
 
 ## up_build: stops docker-compose (if running), builds all projects and starts docker compose
-up_build: build_auth build_user build_chat
+up_build: swagger build_auth build_user build_chat
 	@echo "Stopping docker images (if running...)"
 	docker-compose down
 	@echo "Building (when required) and starting docker images..."
@@ -45,4 +45,11 @@ build_chat:
 	cd ./services/chat-service && env GOOS=linux CGO_ENABLED=0 go build -o bin/chat-service cmd/main.go && chmod +x bin/chat-service
 	@echo "Done!"
 
-.PHONY: run-auth run-user run-chat up up_build down build_auth build_user build_chat
+swagger:
+	@echo "Generating swagger documentation..."
+	cd ./services/auth-service && swag init -g cmd/main.go -d .
+	cd ./services/user-management && swag init -g cmd/main.go -d .
+	cd ./services/chat-service && swag init -g cmd/main.go -d .
+	@echo "Done!"
+
+.PHONY: run-auth run-user run-chat up up_build down build_auth build_user build_chat swagger

@@ -16,15 +16,19 @@ func init() {
 	authFields := schema.Auth{}.Fields()
 	_ = authFields
 	// authDescUserID is the schema descriptor for user_id field.
-	authDescUserID := authFields[0].Descriptor()
+	authDescUserID := authFields[1].Descriptor()
 	// auth.UserIDValidator is a validator for the "user_id" field. It is called by the builders before save.
 	auth.UserIDValidator = authDescUserID.Validators[0].(func(uint) error)
 	// authDescIsRevoked is the schema descriptor for is_revoked field.
-	authDescIsRevoked := authFields[2].Descriptor()
+	authDescIsRevoked := authFields[3].Descriptor()
 	// auth.DefaultIsRevoked holds the default value on creation for the is_revoked field.
 	auth.DefaultIsRevoked = authDescIsRevoked.Default.(bool)
 	// authDescCreatedAt is the schema descriptor for created_at field.
-	authDescCreatedAt := authFields[3].Descriptor()
+	authDescCreatedAt := authFields[4].Descriptor()
 	// auth.DefaultCreatedAt holds the default value on creation for the created_at field.
 	auth.DefaultCreatedAt = authDescCreatedAt.Default.(func() time.Time)
+	// authDescID is the schema descriptor for id field.
+	authDescID := authFields[0].Descriptor()
+	// auth.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	auth.IDValidator = authDescID.Validators[0].(func(string) error)
 }

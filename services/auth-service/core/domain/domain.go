@@ -3,7 +3,7 @@ package domain
 import "time"
 
 type Auth struct {
-	ID                    uint
+	ID                    string
 	AccessToken           string
 	AccessTokenExpiresAt  time.Time
 	RefreshToken          string
@@ -27,6 +27,7 @@ type Claims struct {
 	Email     string
 	Role      string
 	Duration  time.Duration
+	SessionID string
 	IssuedAt  time.Time
 	ExpiresAt time.Time
 }

@@ -1,11 +1,48 @@
 basePath: /
+definitions:
+  handler.ProtectedResponse:
+    properties:
+      message:
+        example: You are authorized!
+        type: string
+      token:
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+        type: string
+    type: object
 host: localhost:3002
 info:
   contact: {}
   description: API documentation for the Chat Room Chat Service
   title: Chat Room Chat API
   version: "1.0"
-paths: {}
+paths:
+  /protected:
+    get:
+      consumes:
+      - application/json
+      description: Access this endpoint only with a valid JWT Bearer token.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully authorized
+          schema:
+            $ref: '#/definitions/handler.ProtectedResponse'
+        "400":
+          description: Bad Request - Missing or invalid token
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized - Token expired or invalid
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Protected Endpoint
+      tags:
+      - chats
 securityDefinitions:
   BearerAuth:
     description: '"JWT Authorization header using the Bearer scheme. Example: \"Bearer

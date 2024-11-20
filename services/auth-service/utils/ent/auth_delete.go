@@ -40,7 +40,7 @@ func (ad *AuthDelete) ExecX(ctx context.Context) int {
 }
 
 func (ad *AuthDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(auth.Table, sqlgraph.NewFieldSpec(auth.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(auth.Table, sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString))
 	if ps := ad.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

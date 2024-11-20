@@ -66,6 +66,12 @@ func (ac *AuthCreate) SetExpiresAt(t time.Time) *AuthCreate {
 	return ac
 }
 
+// SetID sets the "id" field.
+func (ac *AuthCreate) SetID(s string) *AuthCreate {
+	ac.mutation.SetID(s)
+	return ac
+}
+
 // Mutation returns the AuthMutation object of the builder.
 func (ac *AuthCreate) Mutation() *AuthMutation {
 	return ac.mutation
@@ -133,6 +139,11 @@ func (ac *AuthCreate) check() error {
 	if _, ok := ac.mutation.ExpiresAt(); !ok {
 		return &ValidationError{Name: "expires_at", err: errors.New(`ent: missing required field "Auth.expires_at"`)}
 	}
+	if v, ok := ac.mutation.ID(); ok {
+		if err := auth.IDValidator(v); err != nil {
+			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Auth.id": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -147,8 +158,13 @@ func (ac *AuthCreate) sqlSave(ctx context.Context) (*Auth, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Auth.ID type: %T", _spec.ID.Value)
+		}
+	}
 	ac.mutation.id = &_node.ID
 	ac.mutation.done = true
 	return _node, nil
@@ -157,8 +173,12 @@ func (ac *AuthCreate) sqlSave(ctx context.Context) (*Auth, error) {
 func (ac *AuthCreate) createSpec() (*Auth, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Auth{config: ac.config}
-		_spec = sqlgraph.NewCreateSpec(auth.Table, sqlgraph.NewFieldSpec(auth.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(auth.Table, sqlgraph.NewFieldSpec(auth.FieldID, field.TypeString))
 	)
+	if id, ok := ac.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
+	}
 	if value, ok := ac.mutation.UserID(); ok {
 		_spec.SetField(auth.FieldUserID, field.TypeUint, value)
 		_node.UserID = value
@@ -227,10 +247,6 @@ func (acb *AuthCreateBulk) Save(ctx context.Context) ([]*Auth, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

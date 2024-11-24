@@ -28,7 +28,7 @@ func (srv *Server) SetupChatServer(lc fx.Lifecycle) {
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			srv.logger.Info("Starting server")
-			go srv.app.Listen(fmt.Sprintf(":%d", srv.config.Server.Port))
+			go srv.app.ListenTLS(fmt.Sprintf(":%d", srv.config.Server.Port), "server.crt", "server.key")
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {

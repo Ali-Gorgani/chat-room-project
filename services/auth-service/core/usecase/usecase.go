@@ -110,9 +110,6 @@ func (a *AuthUseCase) Logout(ctx context.Context, auth domain.Auth) error {
 		return err
 	}
 
-	// clear token from context
-	ctx = context.WithValue(ctx, "token", "")
-
 	return nil
 }
 

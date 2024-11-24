@@ -45,7 +45,7 @@ func main() {
 			),
 			usecase.NewChatUseCase,
 			server.NewServer,
-			websocket.NewHub,
+			websocket.NewManager,
 
 			// gRPC service
 			fx.Annotate(

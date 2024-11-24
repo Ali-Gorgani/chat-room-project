@@ -5,21 +5,29 @@ import (
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/middleware"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
+	"github.com/gofiber/template/html/v2"
 )
 
 func SetupChatRouter(chatHandler *handler.ChatHandler) *fiber.App {
-	app := fiber.New()
+	// Initialize the HTML engine for rendering views
+	engine := html.New("./views", ".html")
 
-	// Swagger
+	// Create a new Fiber app with custom config
+	app := fiber.New(fiber.Config{
+		Views: engine,
+	})
+
+	// Swagger documentation
 	app.Get("/swagger/*", swagger.HandlerDefault)
 
-	// Chat routes
-	app.Get("/protected", middleware.AuthMiddleware(), chatHandler.ProtectedEndpoint)
-
-	// Serve static files
-	app.Static("/", "./views", fiber.Static{
-		Index: "index.html", // Serve index.html by default
+	// Serve static files from the "public" directory
+	app.Static("/", "./public", fiber.Static{
+		Index: "home.html", // Serve index.html by default
 	})
+
+	// WebSocket routes with middleware
+	app.Use("/ws", middleware.WSMiddleware())
+	app.Get("/ws", chatHandler.ServeWS)
 
 	return app
 }

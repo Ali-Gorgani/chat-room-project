@@ -14,65 +14,7 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {
-        "/protected": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Access this endpoint only with a valid JWT Bearer token.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "chats"
-                ],
-                "summary": "Protected Endpoint",
-                "responses": {
-                    "200": {
-                        "description": "Successfully authorized",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ProtectedResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Missing or invalid token",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized - Token expired or invalid",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        }
-    },
-    "definitions": {
-        "handler.ProtectedResponse": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string",
-                    "example": "You are authorized!"
-                },
-                "token": {
-                    "type": "string",
-                    "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
-                }
-            }
-        }
-    },
+    "paths": {},
     "securityDefinitions": {
         "BearerAuth": {
             "description": "\"JWT Authorization header using the Bearer scheme. Example: \\\"Bearer {token}\\\"\"",

@@ -45,8 +45,7 @@ func (r *AuthRepositoryWithRedis) CreateToken(ctx context.Context, auth domain.A
 	pipe.Set(ctx, refreshTokenKey, auth.Claims.SessionID, time.Until(auth.RefreshTokenExpiresAt))
 
 	// Set the key to expire after 1 day
-	expiration := 15 * time.Minute
-	pipe.Expire(ctx, key, expiration)
+	pipe.Expire(ctx, key, auth.Claims.Duration)
 
 	// Execute the pipeline
 	_, err := pipe.Exec(ctx)

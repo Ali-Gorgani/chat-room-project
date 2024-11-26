@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        #chat-container {
+            width: 400px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #chat {
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        #message {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #send-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #send-button:hover {
+            background-color: #0056b3;
+        }
+
+        .message {
+            margin-bottom: 10px;
+            padding: 8px;
+            border-radius: 5px;
+            background-color: #e2e3e5;
+        }
+
+        .message b {
+            color: #007bff;
+        }
+
+        .message.you {
+            background-color: #d1ecf1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chat-container">
+        <div id="chat"></div>
+        <input type="text" id="message" placeholder="Type your message">
+        <button id="send-button" onclick="sendMessage()">Send</button>
+    </div>
+
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        const roomName = getQueryParam('roomName');
+        const roomId = getQueryParam('roomId');
+        const username = getQueryParam('username');
+        const userId = getQueryParam('userId');
+
+        if (!roomName || !roomId || !username || !userId) {
+            alert('Error: Missing information for joining the room.');
+            window.location.href = '/rooms';
+        }
+
+        const ws = new WebSocket(`wss://localhost:3002/ws/join-room/${roomId}?username=${username}&userId=${userId}`);
+        const chat = document.getElementById('chat');
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log(data);
+
+            if (data.content) {
+                let messageContent;
+                try {
+                    const parsedContent = JSON.parse(data.content);
+                    messageContent = parsedContent.content;
+                } catch {
+                    messageContent = data.content;
+                }
+
+                const messageEl = document.createElement('div');
+
+                // Check if the current user sent the message
+                if (data.username === username) {
+                    messageEl.classList.add('message', 'you');
+                    messageEl.innerHTML = `<b>You:</b> ${messageContent}`;
+                } else {
+                    messageEl.classList.add('message');
+                    messageEl.innerHTML = `<b>${data.username}:</b> ${messageContent}`;
+                }
+
+                chat.appendChild(messageEl);
+                chat.scrollTop = chat.scrollHeight;
+            }
+        };
+
+        function sendMessage() {
+            const messageInput = document.getElementById('message');
+            const message = messageInput.value.trim();
+
+            if (message) {
+                const messageData = {
+                    content: JSON.stringify({ content: message }),
+                    roomId,
+                    username,
+                };
+
+                ws.send(JSON.stringify(messageData)); // Send the message to the server
+
+                messageInput.value = ''; // Clear the input field
+            }
+        }
+    </script>
+
+</body>
+
+</html>

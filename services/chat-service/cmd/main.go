@@ -14,7 +14,7 @@ import (
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/db"
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/logger"
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/redis"
-	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/websocket"
+	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/ws"
 	"github.com/gofiber/fiber/v2"
 	"go.uber.org/fx"
 )
@@ -45,7 +45,7 @@ func main() {
 			),
 			usecase.NewChatUseCase,
 			server.NewServer,
-			websocket.NewManager,
+			ws.NewHub,
 
 			// gRPC service
 			fx.Annotate(
@@ -60,9 +60,13 @@ func main() {
 			logger *logger.Logger,
 			config *configs.Config,
 			srv *server.Server, // Inject the Fiber server
+			ws *ws.Hub, // Inject the ws hub
 		) {
 			// Set up the Fiber server
 			srv.SetupChatServer(lc)
+
+			// Start ws hub
+			go ws.Run()
 		}),
 	)
 	app.Run()

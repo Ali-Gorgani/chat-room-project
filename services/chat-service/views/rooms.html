@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Rooms</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 25px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        input[type="text"] {
+            width: 90%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 1rem;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin: 5px 0;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        li {
+            background-color: #f1f1f1;
+            padding: 18px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        li button {
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            background-color: #28a745;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+        }
+
+        li button:hover {
+            background-color: #218838;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 1rem;
+            margin-top: 10px;
+        }
+
+        #auth-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #auth-button.logout {
+            background-color: #dc3545;
+            /* Red background for logout button */
+        }
+
+        #auth-button.logout:hover {
+            background-color: #c82333;
+            /* Darker red on hover */
+        }
+
+        #auth-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Chat Rooms</h1>
+        <input type="text" id="roomName" placeholder="Enter room name" />
+        <button onclick="addRoom()" id="addRoomButton">Add Room</button>
+        <ul id="roomList"></ul>
+    </div>
+
+    <button id="auth-button" onclick="authenticate()">Login</button>
+
+    <script>
+        // Function to load rooms from the server
+        async function loadRooms() {
+            try {
+                const response = await fetch('/ws/get-rooms');
+                const rooms = await response.json();
+                const roomList = document.getElementById('roomList');
+                roomList.innerHTML = '';
+
+                rooms.forEach(room => {
+                    const li = document.createElement('li');
+                    li.textContent = room.name;
+                    const joinButton = document.createElement('button');
+                    joinButton.textContent = 'Join';
+                    joinButton.onclick = () => joinRoom(room);
+                    li.appendChild(joinButton);
+                    roomList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error loading rooms:', error);
+                alert('Failed to load rooms.');
+            }
+        }
+
+        // Function to add a new room
+        async function addRoom() {
+            const roomName = document.getElementById('roomName').value;
+            const username = localStorage.getItem('username');
+            const userId = localStorage.getItem('userId');
+
+            if (!username || !userId) {
+                alert('You must be logged in to create a room!');
+                return;
+            }
+
+            if (roomName.trim()) {
+                const roomId = generateUUID();
+
+                try {
+                    const response = await fetch('/ws/create-room', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id: roomId, name: roomName }),
+                    });
+
+                    if (response.ok) {
+                        loadRooms();
+                        document.getElementById('roomName').value = ''; // Clear the input
+                        document.getElementById('roomName').placeholder = 'Enter room name'; // Restore the placeholder
+                    } else {
+                        alert('Error adding room');
+                    }
+                } catch (error) {
+                    console.error('Error adding room:', error);
+                    alert('Failed to add room.');
+                }
+            } else {
+                alert("Room name can't be empty");
+            }
+        }
+
+        // Function to generate a UUID
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = Math.random() * 16 | 0,
+                    v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // Function to join a room
+        function joinRoom(room) {
+            const username = localStorage.getItem('username');
+            const userId = localStorage.getItem('userId');
+
+            if (!username || !userId) {
+                alert('You must be logged in to join a room!');
+                return;
+            }
+
+            window.location.href = `/chat?roomId=${encodeURIComponent(room.id)}&roomName=${encodeURIComponent(room.name)}&username=${encodeURIComponent(username)}&userId=${encodeURIComponent(userId)}`;
+        }
+
+        // Function to log out
+        function logout() {
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            window.location.href = '/login'; // Adjust as needed
+        }
+
+        // Function to handle authentication button display
+        function authenticate() {
+            const username = localStorage.getItem('username');
+            const userId = localStorage.getItem('userId');
+            const authButton = document.getElementById('auth-button');
+            if (!username || !userId) {
+                window.location.href = '/login'; // Redirect to login if not logged in
+            } else {
+                logout(); // Log out if already logged in
+            }
+        }
+
+        // Function to check login status
+        function checkLoginStatus() {
+            const username = localStorage.getItem('username');
+            const userId = localStorage.getItem('userId');
+            const authButton = document.getElementById('auth-button');
+
+            if (username && userId) {
+                authButton.textContent = 'Logout';
+                authButton.classList.add('logout'); // Apply logout style
+            } else {
+                authButton.textContent = 'Login';
+                authButton.classList.remove('logout'); // Remove logout style
+            }
+        }
+
+        // Load rooms and check login status when the page loads
+        loadRooms();
+        checkLoginStatus();
+    </script>
+
+</body>
+
+</html>

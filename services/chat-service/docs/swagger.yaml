@@ -1,11 +1,105 @@
 basePath: /
+definitions:
+  handler.ClientRes:
+    properties:
+      id:
+        type: string
+      username:
+        type: string
+    type: object
+  handler.CreateRoomRequest:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
+  handler.RoomRes:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+    type: object
 host: localhost:3002
 info:
   contact: {}
   description: API documentation for the Chat Room Chat Service
   title: Chat Room Chat API
   version: "1.0"
-paths: {}
+paths:
+  /ws/create-room:
+    post:
+      consumes:
+      - application/json
+      description: Create a new chat room with the given ID and name
+      parameters:
+      - description: Create Room Request
+        in: body
+        name: CreateRoomRequest
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreateRoomRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.CreateRoomRequest'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Create a new chat room
+      tags:
+      - chat
+  /ws/get-clients/{roomId}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of clients in the specified chat room
+      parameters:
+      - description: Room ID
+        in: path
+        name: roomId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.ClientRes'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get clients in a chat room
+      tags:
+      - chat
+  /ws/get-rooms:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all chat rooms
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.RoomRes'
+            type: array
+      summary: Get all chat rooms
+      tags:
+      - chat
 securityDefinitions:
   BearerAuth:
     description: '"JWT Authorization header using the Bearer scheme. Example: \"Bearer

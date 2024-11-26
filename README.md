@@ -9,4 +9,4 @@
 2. Open your browser and navigate to:
    - [User Swagger](http://localhost:3000/swagger)
    - [Auth Swagger](http://localhost:3001/swagger)
-   - [Chat Home Page](https://localhost:3002)
+   - [Chat Rooms](https://localhost:3002/rooms)

@@ -19,10 +19,10 @@ func SetupChatRouter(chatHandler *handler.ChatHandler) *fiber.App {
 
 	// Configure CORS
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "https://localhost:3002", // Comma-separated origins as a single string
-		AllowCredentials: true,                                           // Allow cookies and credentials
-		AllowMethods:     "GET,POST,PUT,DELETE",                          // Specify allowed HTTP methods
-		AllowHeaders:     "Content-Type,Authorization",                   // Specify allowed headers
+		AllowOrigins:     "http://localhost:3000,http://localhost:3001,https://localhost:3002", // Comma-separated origins as a single string
+		AllowCredentials: true,                                                                 // Allow cookies and credentials
+		AllowMethods:     "GET,POST,PUT,DELETE",                                                // Specify allowed HTTP methods
+		AllowHeaders:     "Content-Type,Authorization",                                         // Specify allowed headers
 	}))
 
 	// Swagger documentation
@@ -30,6 +30,13 @@ func SetupChatRouter(chatHandler *handler.ChatHandler) *fiber.App {
 
 	// Serve static assets (CSS, JS, etc.) from the "public" directory
 	app.Static("/assets", "./public")
+
+	// Route to render signup.html
+	app.Get("/signup", func(c *fiber.Ctx) error {
+		return c.Render("signup", fiber.Map{
+			"Title": "Signup",
+		})
+	})
 
 	// Route to render login.html
 	app.Get("/login", func(c *fiber.Ctx) error {

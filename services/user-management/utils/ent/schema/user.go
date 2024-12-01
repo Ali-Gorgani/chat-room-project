@@ -14,18 +14,24 @@ type User struct {
 // Fields of the User.
 func (User) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("username").Unique(),
-		field.String("email").Unique(),
-		field.String("password"),
+		field.String("username").
+			Unique().
+			NotEmpty(),
+		field.String("email").
+			Unique().
+			NotEmpty(),
+		field.String("password").
+			NotEmpty(),
 	}
 }
 
 // Edges of the User.
 func (User) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.To("profile", Profile.Type).Unique(), // One-to-one relationship with Profile
+		edge.To("profile", Profile.Type).
+			Unique(),
 		edge.From("role", Role.Type).
 			Ref("users").
-			Unique(), // Each user has a single role
+			Unique(),
 	}
 }

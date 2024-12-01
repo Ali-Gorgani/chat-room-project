@@ -1,10 +1,10 @@
 package domain
 
-import "time"
+import "github.com/gofiber/websocket/v2"
 
 // User represents a user in the chat
 type User struct {
-	ID       int
+	ID       string
 	Username string
 	Email    string
 	Role     Role
@@ -19,19 +19,21 @@ type Auth struct {
 	AccessToken string
 }
 
-// Room represents a chat room.
 type Room struct {
-	ID       string    `json:"id"`
-	Name     string    `json:"name"`
-	Created  time.Time `json:"created"`
-	Messages []Message `json:"messages"`
+	ID   string
+	Name string
 }
 
-// Message represents a chat message in a room.
 type Message struct {
-	ID      string    `json:"id"`
-	RoomID  string    `json:"room_id"`
-	UserID  string    `json:"user_id"`
-	Content string    `json:"content"`
-	SentAt  time.Time `json:"sent_at"`
+	ID       int
+	RoomID   string
+	Username string
+	Content  string
+}
+
+type Chat struct {
+	Room    Room
+	Message Message
+	User    User
+	Conn    *websocket.Conn
 }

@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -26,9 +25,25 @@ func (pc *ProfileCreate) SetFirstName(s string) *ProfileCreate {
 	return pc
 }
 
+// SetNillableFirstName sets the "first_name" field if the given value is not nil.
+func (pc *ProfileCreate) SetNillableFirstName(s *string) *ProfileCreate {
+	if s != nil {
+		pc.SetFirstName(*s)
+	}
+	return pc
+}
+
 // SetLastName sets the "last_name" field.
 func (pc *ProfileCreate) SetLastName(s string) *ProfileCreate {
 	pc.mutation.SetLastName(s)
+	return pc
+}
+
+// SetNillableLastName sets the "last_name" field if the given value is not nil.
+func (pc *ProfileCreate) SetNillableLastName(s *string) *ProfileCreate {
+	if s != nil {
+		pc.SetLastName(*s)
+	}
 	return pc
 }
 
@@ -99,12 +114,6 @@ func (pc *ProfileCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (pc *ProfileCreate) check() error {
-	if _, ok := pc.mutation.FirstName(); !ok {
-		return &ValidationError{Name: "first_name", err: errors.New(`ent: missing required field "Profile.first_name"`)}
-	}
-	if _, ok := pc.mutation.LastName(); !ok {
-		return &ValidationError{Name: "last_name", err: errors.New(`ent: missing required field "Profile.last_name"`)}
-	}
 	return nil
 }
 

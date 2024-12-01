@@ -30,15 +30,15 @@ func (ru *RoleUpdate) Where(ps ...predicate.Role) *RoleUpdate {
 }
 
 // SetName sets the "name" field.
-func (ru *RoleUpdate) SetName(s string) *RoleUpdate {
-	ru.mutation.SetName(s)
+func (ru *RoleUpdate) SetName(r role.Name) *RoleUpdate {
+	ru.mutation.SetName(r)
 	return ru
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (ru *RoleUpdate) SetNillableName(s *string) *RoleUpdate {
-	if s != nil {
-		ru.SetName(*s)
+func (ru *RoleUpdate) SetNillableName(r *role.Name) *RoleUpdate {
+	if r != nil {
+		ru.SetName(*r)
 	}
 	return ru
 }
@@ -52,12 +52,6 @@ func (ru *RoleUpdate) SetPermissions(s []string) *RoleUpdate {
 // AppendPermissions appends s to the "permissions" field.
 func (ru *RoleUpdate) AppendPermissions(s []string) *RoleUpdate {
 	ru.mutation.AppendPermissions(s)
-	return ru
-}
-
-// ClearPermissions clears the value of the "permissions" field.
-func (ru *RoleUpdate) ClearPermissions() *RoleUpdate {
-	ru.mutation.ClearPermissions()
 	return ru
 }
 
@@ -152,7 +146,7 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 	}
 	if value, ok := ru.mutation.Name(); ok {
-		_spec.SetField(role.FieldName, field.TypeString, value)
+		_spec.SetField(role.FieldName, field.TypeEnum, value)
 	}
 	if value, ok := ru.mutation.Permissions(); ok {
 		_spec.SetField(role.FieldPermissions, field.TypeJSON, value)
@@ -161,9 +155,6 @@ func (ru *RoleUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, role.FieldPermissions, value)
 		})
-	}
-	if ru.mutation.PermissionsCleared() {
-		_spec.ClearField(role.FieldPermissions, field.TypeJSON)
 	}
 	if ru.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -231,15 +222,15 @@ type RoleUpdateOne struct {
 }
 
 // SetName sets the "name" field.
-func (ruo *RoleUpdateOne) SetName(s string) *RoleUpdateOne {
-	ruo.mutation.SetName(s)
+func (ruo *RoleUpdateOne) SetName(r role.Name) *RoleUpdateOne {
+	ruo.mutation.SetName(r)
 	return ruo
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (ruo *RoleUpdateOne) SetNillableName(s *string) *RoleUpdateOne {
-	if s != nil {
-		ruo.SetName(*s)
+func (ruo *RoleUpdateOne) SetNillableName(r *role.Name) *RoleUpdateOne {
+	if r != nil {
+		ruo.SetName(*r)
 	}
 	return ruo
 }
@@ -253,12 +244,6 @@ func (ruo *RoleUpdateOne) SetPermissions(s []string) *RoleUpdateOne {
 // AppendPermissions appends s to the "permissions" field.
 func (ruo *RoleUpdateOne) AppendPermissions(s []string) *RoleUpdateOne {
 	ruo.mutation.AppendPermissions(s)
-	return ruo
-}
-
-// ClearPermissions clears the value of the "permissions" field.
-func (ruo *RoleUpdateOne) ClearPermissions() *RoleUpdateOne {
-	ruo.mutation.ClearPermissions()
 	return ruo
 }
 
@@ -383,7 +368,7 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 		}
 	}
 	if value, ok := ruo.mutation.Name(); ok {
-		_spec.SetField(role.FieldName, field.TypeString, value)
+		_spec.SetField(role.FieldName, field.TypeEnum, value)
 	}
 	if value, ok := ruo.mutation.Permissions(); ok {
 		_spec.SetField(role.FieldPermissions, field.TypeJSON, value)
@@ -392,9 +377,6 @@ func (ruo *RoleUpdateOne) sqlSave(ctx context.Context) (_node *Role, err error) 
 		_spec.AddModifier(func(u *sql.UpdateBuilder) {
 			sqljson.Append(u, role.FieldPermissions, value)
 		})
-	}
-	if ruo.mutation.PermissionsCleared() {
-		_spec.ClearField(role.FieldPermissions, field.TypeJSON)
 	}
 	if ruo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{

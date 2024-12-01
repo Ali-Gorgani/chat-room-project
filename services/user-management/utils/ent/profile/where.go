@@ -123,6 +123,16 @@ func FirstNameHasSuffix(v string) predicate.Profile {
 	return predicate.Profile(sql.FieldHasSuffix(FieldFirstName, v))
 }
 
+// FirstNameIsNil applies the IsNil predicate on the "first_name" field.
+func FirstNameIsNil() predicate.Profile {
+	return predicate.Profile(sql.FieldIsNull(FieldFirstName))
+}
+
+// FirstNameNotNil applies the NotNil predicate on the "first_name" field.
+func FirstNameNotNil() predicate.Profile {
+	return predicate.Profile(sql.FieldNotNull(FieldFirstName))
+}
+
 // FirstNameEqualFold applies the EqualFold predicate on the "first_name" field.
 func FirstNameEqualFold(v string) predicate.Profile {
 	return predicate.Profile(sql.FieldEqualFold(FieldFirstName, v))
@@ -186,6 +196,16 @@ func LastNameHasPrefix(v string) predicate.Profile {
 // LastNameHasSuffix applies the HasSuffix predicate on the "last_name" field.
 func LastNameHasSuffix(v string) predicate.Profile {
 	return predicate.Profile(sql.FieldHasSuffix(FieldLastName, v))
+}
+
+// LastNameIsNil applies the IsNil predicate on the "last_name" field.
+func LastNameIsNil() predicate.Profile {
+	return predicate.Profile(sql.FieldIsNull(FieldLastName))
+}
+
+// LastNameNotNil applies the NotNil predicate on the "last_name" field.
+func LastNameNotNil() predicate.Profile {
+	return predicate.Profile(sql.FieldNotNull(FieldLastName))
 }
 
 // LastNameEqualFold applies the EqualFold predicate on the "last_name" field.

@@ -3,6 +3,8 @@
 package role
 
 import (
+	"fmt"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 )
@@ -47,11 +49,35 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// NameValidator is a validator for the "name" field. It is called by the builders before save.
-	NameValidator func(string) error
 	// DefaultPermissions holds the default value on creation for the "permissions" field.
 	DefaultPermissions []string
 )
+
+// Name defines the type for the "name" enum field.
+type Name string
+
+// NameUser is the default value of the Name enum.
+const DefaultName = NameUser
+
+// Name values.
+const (
+	NameUser  Name = "user"
+	NameAdmin Name = "admin"
+)
+
+func (n Name) String() string {
+	return string(n)
+}
+
+// NameValidator is a validator for the "name" field enum values. It is called by the builders before save.
+func NameValidator(n Name) error {
+	switch n {
+	case NameUser, NameAdmin:
+		return nil
+	default:
+		return fmt.Errorf("role: invalid enum value for name field: %q", n)
+	}
+}
 
 // OrderOption defines the ordering options for the Role queries.
 type OrderOption func(*sql.Selector)

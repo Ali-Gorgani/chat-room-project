@@ -176,9 +176,22 @@ func (m *ProfileMutation) OldFirstName(ctx context.Context) (v string, err error
 	return oldValue.FirstName, nil
 }
 
+// ClearFirstName clears the value of the "first_name" field.
+func (m *ProfileMutation) ClearFirstName() {
+	m.first_name = nil
+	m.clearedFields[profile.FieldFirstName] = struct{}{}
+}
+
+// FirstNameCleared returns if the "first_name" field was cleared in this mutation.
+func (m *ProfileMutation) FirstNameCleared() bool {
+	_, ok := m.clearedFields[profile.FieldFirstName]
+	return ok
+}
+
 // ResetFirstName resets all changes to the "first_name" field.
 func (m *ProfileMutation) ResetFirstName() {
 	m.first_name = nil
+	delete(m.clearedFields, profile.FieldFirstName)
 }
 
 // SetLastName sets the "last_name" field.
@@ -212,9 +225,22 @@ func (m *ProfileMutation) OldLastName(ctx context.Context) (v string, err error)
 	return oldValue.LastName, nil
 }
 
+// ClearLastName clears the value of the "last_name" field.
+func (m *ProfileMutation) ClearLastName() {
+	m.last_name = nil
+	m.clearedFields[profile.FieldLastName] = struct{}{}
+}
+
+// LastNameCleared returns if the "last_name" field was cleared in this mutation.
+func (m *ProfileMutation) LastNameCleared() bool {
+	_, ok := m.clearedFields[profile.FieldLastName]
+	return ok
+}
+
 // ResetLastName resets all changes to the "last_name" field.
 func (m *ProfileMutation) ResetLastName() {
 	m.last_name = nil
+	delete(m.clearedFields, profile.FieldLastName)
 }
 
 // SetProfilePicture sets the "profile_picture" field.
@@ -438,6 +464,12 @@ func (m *ProfileMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *ProfileMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(profile.FieldFirstName) {
+		fields = append(fields, profile.FieldFirstName)
+	}
+	if m.FieldCleared(profile.FieldLastName) {
+		fields = append(fields, profile.FieldLastName)
+	}
 	if m.FieldCleared(profile.FieldProfilePicture) {
 		fields = append(fields, profile.FieldProfilePicture)
 	}
@@ -455,6 +487,12 @@ func (m *ProfileMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *ProfileMutation) ClearField(name string) error {
 	switch name {
+	case profile.FieldFirstName:
+		m.ClearFirstName()
+		return nil
+	case profile.FieldLastName:
+		m.ClearLastName()
+		return nil
 	case profile.FieldProfilePicture:
 		m.ClearProfilePicture()
 		return nil
@@ -559,7 +597,7 @@ type RoleMutation struct {
 	op                Op
 	typ               string
 	id                *int
-	name              *string
+	name              *role.Name
 	permissions       *[]string
 	appendpermissions []string
 	clearedFields     map[string]struct{}
@@ -670,12 +708,12 @@ func (m *RoleMutation) IDs(ctx context.Context) ([]int, error) {
 }
 
 // SetName sets the "name" field.
-func (m *RoleMutation) SetName(s string) {
-	m.name = &s
+func (m *RoleMutation) SetName(r role.Name) {
+	m.name = &r
 }
 
 // Name returns the value of the "name" field in the mutation.
-func (m *RoleMutation) Name() (r string, exists bool) {
+func (m *RoleMutation) Name() (r role.Name, exists bool) {
 	v := m.name
 	if v == nil {
 		return
@@ -686,7 +724,7 @@ func (m *RoleMutation) Name() (r string, exists bool) {
 // OldName returns the old "name" field's value of the Role entity.
 // If the Role object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *RoleMutation) OldName(ctx context.Context) (v string, err error) {
+func (m *RoleMutation) OldName(ctx context.Context) (v role.Name, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldName is only allowed on UpdateOne operations")
 	}
@@ -750,24 +788,10 @@ func (m *RoleMutation) AppendedPermissions() ([]string, bool) {
 	return m.appendpermissions, true
 }
 
-// ClearPermissions clears the value of the "permissions" field.
-func (m *RoleMutation) ClearPermissions() {
-	m.permissions = nil
-	m.appendpermissions = nil
-	m.clearedFields[role.FieldPermissions] = struct{}{}
-}
-
-// PermissionsCleared returns if the "permissions" field was cleared in this mutation.
-func (m *RoleMutation) PermissionsCleared() bool {
-	_, ok := m.clearedFields[role.FieldPermissions]
-	return ok
-}
-
 // ResetPermissions resets all changes to the "permissions" field.
 func (m *RoleMutation) ResetPermissions() {
 	m.permissions = nil
 	m.appendpermissions = nil
-	delete(m.clearedFields, role.FieldPermissions)
 }
 
 // AddUserIDs adds the "users" edge to the User entity by ids.
@@ -900,7 +924,7 @@ func (m *RoleMutation) OldField(ctx context.Context, name string) (ent.Value, er
 func (m *RoleMutation) SetField(name string, value ent.Value) error {
 	switch name {
 	case role.FieldName:
-		v, ok := value.(string)
+		v, ok := value.(role.Name)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -942,11 +966,7 @@ func (m *RoleMutation) AddField(name string, value ent.Value) error {
 // ClearedFields returns all nullable fields that were cleared during this
 // mutation.
 func (m *RoleMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(role.FieldPermissions) {
-		fields = append(fields, role.FieldPermissions)
-	}
-	return fields
+	return nil
 }
 
 // FieldCleared returns a boolean indicating if a field with the given name was
@@ -959,11 +979,6 @@ func (m *RoleMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *RoleMutation) ClearField(name string) error {
-	switch name {
-	case role.FieldPermissions:
-		m.ClearPermissions()
-		return nil
-	}
 	return fmt.Errorf("unknown Role nullable field %s", name)
 }
 

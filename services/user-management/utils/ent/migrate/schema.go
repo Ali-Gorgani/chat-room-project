@@ -11,8 +11,8 @@ var (
 	// ProfilesColumns holds the columns for the "profiles" table.
 	ProfilesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "first_name", Type: field.TypeString},
-		{Name: "last_name", Type: field.TypeString},
+		{Name: "first_name", Type: field.TypeString, Nullable: true},
+		{Name: "last_name", Type: field.TypeString, Nullable: true},
 		{Name: "profile_picture", Type: field.TypeString, Nullable: true},
 		{Name: "user_profile", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
@@ -33,8 +33,8 @@ var (
 	// RolesColumns holds the columns for the "roles" table.
 	RolesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString, Unique: true},
-		{Name: "permissions", Type: field.TypeJSON, Nullable: true},
+		{Name: "name", Type: field.TypeEnum, Enums: []string{"user", "admin"}, Default: "user"},
+		{Name: "permissions", Type: field.TypeJSON},
 	}
 	// RolesTable holds the schema information for the "roles" table.
 	RolesTable = &schema.Table{

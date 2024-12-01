@@ -14,8 +14,8 @@ type Profile struct {
 // Fields of the Profile.
 func (Profile) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("first_name"),
-		field.String("last_name"),
+		field.String("first_name").Optional(),
+		field.String("last_name").Optional(),
 		field.String("profile_picture").Optional(),
 	}
 }

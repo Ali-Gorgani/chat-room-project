@@ -2,7 +2,6 @@ package handler
 
 import (
 	"log"
-	"sync"
 
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/core/usecase"
 	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/errors"
@@ -43,11 +42,13 @@ func (h *ChatHandler) CreateRoom(ctx *fiber.Ctx) error {
 	}
 
 	// Initialize a room with updated Clients structure
+	h.hub.Lock()
 	h.hub.Rooms[req.ID] = &ws.Room{
 		ID:      req.ID,
 		Name:    req.Name,
 		Clients: make(map[string][]*ws.Client), // Updated to match new struct
 	}
+	h.hub.Unlock()
 
 	return ctx.Status(fiber.StatusCreated).JSON(req)
 }
@@ -73,32 +74,7 @@ func (h *ChatHandler) JoinRoom(ctx *fiber.Ctx) error {
 
 	if websocket.IsWebSocketUpgrade(ctx) {
 		return websocket.New(func(conn *websocket.Conn) {
-			client := &ws.Client{
-				Conn:     conn,
-				Message:  make(chan *ws.Message, 10),
-				ID:       req.UserID,
-				RoomID:   roomID,
-				Username: req.Username,
-			}
-
-			// Register the client
-			h.hub.Register <- client
-
-			// Handle message reading and writing
-			var wg sync.WaitGroup
-			wg.Add(2)
-
-			go func() {
-				defer wg.Done()
-				client.ReadMessage(h.hub)
-			}()
-
-			go func() {
-				defer wg.Done()
-				client.WriteMessage()
-			}()
-
-			wg.Wait()
+			h.usecase.JoinRoom(ctx.Context(), dtoJoinRoomReqToDomainChat(roomID, req, conn))
 		}, config)(ctx)
 	}
 
@@ -116,12 +92,14 @@ func (h *ChatHandler) JoinRoom(ctx *fiber.Ctx) error {
 func (h *ChatHandler) GetRooms(ctx *fiber.Ctx) error {
 	rooms := make([]RoomRes, 0)
 
+	h.hub.Lock()
 	for _, r := range h.hub.Rooms {
 		rooms = append(rooms, RoomRes{
 			ID:   r.ID,
 			Name: r.Name,
 		})
 	}
+	h.hub.Unlock()
 
 	return ctx.Status(fiber.StatusOK).JSON(rooms)
 }
@@ -141,6 +119,7 @@ func (h *ChatHandler) GetClients(ctx *fiber.Ctx) error {
 	roomID := ctx.Params("roomId")
 
 	// Check if the room exists
+	h.hub.Lock()
 	room, ok := h.hub.Rooms[roomID]
 	if !ok {
 		clients = make([]ClientRes, 0)
@@ -156,6 +135,7 @@ func (h *ChatHandler) GetClients(ctx *fiber.Ctx) error {
 			})
 		}
 	}
+	h.hub.Unlock()
 
 	return ctx.Status(fiber.StatusOK).JSON(clients)
 }

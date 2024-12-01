@@ -8,21 +8,34 @@ import (
 )
 
 var (
-	// ChatsColumns holds the columns for the "chats" table.
-	ChatsColumns = []*schema.Column{
+	// MessagesColumns holds the columns for the "messages" table.
+	MessagesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "name", Type: field.TypeString},
-		{Name: "created_at", Type: field.TypeTime},
+		{Name: "content", Type: field.TypeString},
+		{Name: "room_id", Type: field.TypeString},
+		{Name: "username", Type: field.TypeString},
 	}
-	// ChatsTable holds the schema information for the "chats" table.
-	ChatsTable = &schema.Table{
-		Name:       "chats",
-		Columns:    ChatsColumns,
-		PrimaryKey: []*schema.Column{ChatsColumns[0]},
+	// MessagesTable holds the schema information for the "messages" table.
+	MessagesTable = &schema.Table{
+		Name:       "messages",
+		Columns:    MessagesColumns,
+		PrimaryKey: []*schema.Column{MessagesColumns[0]},
+	}
+	// RoomsColumns holds the columns for the "rooms" table.
+	RoomsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeString},
+		{Name: "name", Type: field.TypeString},
+	}
+	// RoomsTable holds the schema information for the "rooms" table.
+	RoomsTable = &schema.Table{
+		Name:       "rooms",
+		Columns:    RoomsColumns,
+		PrimaryKey: []*schema.Column{RoomsColumns[0]},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
-		ChatsTable,
+		MessagesTable,
+		RoomsTable,
 	}
 )
 

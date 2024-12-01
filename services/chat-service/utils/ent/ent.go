@@ -12,7 +12,8 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/ent/chat"
+	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/ent/message"
+	"github.com/Ali-Gorgani/chat-room-project/services/chat-service/utils/ent/room"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -73,7 +74,8 @@ var (
 func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
-			chat.Table: chat.ValidColumn,
+			message.Table: message.ValidColumn,
+			room.Table:    room.ValidColumn,
 		})
 	})
 	return columnCheck(table, column)

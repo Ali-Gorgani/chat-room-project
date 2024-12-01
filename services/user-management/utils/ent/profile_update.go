@@ -42,6 +42,12 @@ func (pu *ProfileUpdate) SetNillableFirstName(s *string) *ProfileUpdate {
 	return pu
 }
 
+// ClearFirstName clears the value of the "first_name" field.
+func (pu *ProfileUpdate) ClearFirstName() *ProfileUpdate {
+	pu.mutation.ClearFirstName()
+	return pu
+}
+
 // SetLastName sets the "last_name" field.
 func (pu *ProfileUpdate) SetLastName(s string) *ProfileUpdate {
 	pu.mutation.SetLastName(s)
@@ -53,6 +59,12 @@ func (pu *ProfileUpdate) SetNillableLastName(s *string) *ProfileUpdate {
 	if s != nil {
 		pu.SetLastName(*s)
 	}
+	return pu
+}
+
+// ClearLastName clears the value of the "last_name" field.
+func (pu *ProfileUpdate) ClearLastName() *ProfileUpdate {
+	pu.mutation.ClearLastName()
 	return pu
 }
 
@@ -145,8 +157,14 @@ func (pu *ProfileUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := pu.mutation.FirstName(); ok {
 		_spec.SetField(profile.FieldFirstName, field.TypeString, value)
 	}
+	if pu.mutation.FirstNameCleared() {
+		_spec.ClearField(profile.FieldFirstName, field.TypeString)
+	}
 	if value, ok := pu.mutation.LastName(); ok {
 		_spec.SetField(profile.FieldLastName, field.TypeString, value)
+	}
+	if pu.mutation.LastNameCleared() {
+		_spec.ClearField(profile.FieldLastName, field.TypeString)
 	}
 	if value, ok := pu.mutation.ProfilePicture(); ok {
 		_spec.SetField(profile.FieldProfilePicture, field.TypeString, value)
@@ -217,6 +235,12 @@ func (puo *ProfileUpdateOne) SetNillableFirstName(s *string) *ProfileUpdateOne {
 	return puo
 }
 
+// ClearFirstName clears the value of the "first_name" field.
+func (puo *ProfileUpdateOne) ClearFirstName() *ProfileUpdateOne {
+	puo.mutation.ClearFirstName()
+	return puo
+}
+
 // SetLastName sets the "last_name" field.
 func (puo *ProfileUpdateOne) SetLastName(s string) *ProfileUpdateOne {
 	puo.mutation.SetLastName(s)
@@ -228,6 +252,12 @@ func (puo *ProfileUpdateOne) SetNillableLastName(s *string) *ProfileUpdateOne {
 	if s != nil {
 		puo.SetLastName(*s)
 	}
+	return puo
+}
+
+// ClearLastName clears the value of the "last_name" field.
+func (puo *ProfileUpdateOne) ClearLastName() *ProfileUpdateOne {
+	puo.mutation.ClearLastName()
 	return puo
 }
 
@@ -350,8 +380,14 @@ func (puo *ProfileUpdateOne) sqlSave(ctx context.Context) (_node *Profile, err e
 	if value, ok := puo.mutation.FirstName(); ok {
 		_spec.SetField(profile.FieldFirstName, field.TypeString, value)
 	}
+	if puo.mutation.FirstNameCleared() {
+		_spec.ClearField(profile.FieldFirstName, field.TypeString)
+	}
 	if value, ok := puo.mutation.LastName(); ok {
 		_spec.SetField(profile.FieldLastName, field.TypeString, value)
+	}
+	if puo.mutation.LastNameCleared() {
+		_spec.ClearField(profile.FieldLastName, field.TypeString)
 	}
 	if value, ok := puo.mutation.ProfilePicture(); ok {
 		_spec.SetField(profile.FieldProfilePicture, field.TypeString, value)

@@ -5,6 +5,7 @@ package ent
 import (
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/ent/role"
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/ent/schema"
+	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -13,12 +14,22 @@ import (
 func init() {
 	roleFields := schema.Role{}.Fields()
 	_ = roleFields
-	// roleDescName is the schema descriptor for name field.
-	roleDescName := roleFields[0].Descriptor()
-	// role.NameValidator is a validator for the "name" field. It is called by the builders before save.
-	role.NameValidator = roleDescName.Validators[0].(func(string) error)
 	// roleDescPermissions is the schema descriptor for permissions field.
 	roleDescPermissions := roleFields[1].Descriptor()
 	// role.DefaultPermissions holds the default value on creation for the permissions field.
 	role.DefaultPermissions = roleDescPermissions.Default.([]string)
+	userFields := schema.User{}.Fields()
+	_ = userFields
+	// userDescUsername is the schema descriptor for username field.
+	userDescUsername := userFields[0].Descriptor()
+	// user.UsernameValidator is a validator for the "username" field. It is called by the builders before save.
+	user.UsernameValidator = userDescUsername.Validators[0].(func(string) error)
+	// userDescEmail is the schema descriptor for email field.
+	userDescEmail := userFields[1].Descriptor()
+	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
+	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
+	// userDescPassword is the schema descriptor for password field.
+	userDescPassword := userFields[2].Descriptor()
+	// user.PasswordValidator is a validator for the "password" field. It is called by the builders before save.
+	user.PasswordValidator = userDescPassword.Validators[0].(func(string) error)
 }

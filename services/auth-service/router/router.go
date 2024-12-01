@@ -13,10 +13,10 @@ func SetupAuthRouter(handler *handler.AuthHandler) *fiber.App {
 
 	// Configure CORS
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     "http://localhost:3001,https://localhost:3002",     // Comma-separated origins as a single string
-		AllowCredentials: true,                         // Allow cookies and credentials
-		AllowMethods:     "GET,POST,PUT,DELETE",        // Specify allowed HTTP methods
-		AllowHeaders:     "Content-Type,Authorization", // Specify allowed headers
+		AllowOrigins:     "http://localhost:3000,http://localhost:3001,https://localhost:3002", // Comma-separated origins as a single string
+		AllowCredentials: true,                                                                 // Allow cookies and credentials
+		AllowMethods:     "GET,POST,PUT,DELETE",                                                // Specify allowed HTTP methods
+		AllowHeaders:     "Content-Type,Authorization",                                         // Specify allowed headers
 	}))
 
 	// Define Swagger route first to keep it unaffected by AuthMiddleware.

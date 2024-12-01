@@ -21,8 +21,16 @@ type RoleCreate struct {
 }
 
 // SetName sets the "name" field.
-func (rc *RoleCreate) SetName(s string) *RoleCreate {
-	rc.mutation.SetName(s)
+func (rc *RoleCreate) SetName(r role.Name) *RoleCreate {
+	rc.mutation.SetName(r)
+	return rc
+}
+
+// SetNillableName sets the "name" field if the given value is not nil.
+func (rc *RoleCreate) SetNillableName(r *role.Name) *RoleCreate {
+	if r != nil {
+		rc.SetName(*r)
+	}
 	return rc
 }
 
@@ -82,6 +90,10 @@ func (rc *RoleCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (rc *RoleCreate) defaults() {
+	if _, ok := rc.mutation.Name(); !ok {
+		v := role.DefaultName
+		rc.mutation.SetName(v)
+	}
 	if _, ok := rc.mutation.Permissions(); !ok {
 		v := role.DefaultPermissions
 		rc.mutation.SetPermissions(v)
@@ -97,6 +109,9 @@ func (rc *RoleCreate) check() error {
 		if err := role.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Role.name": %w`, err)}
 		}
+	}
+	if _, ok := rc.mutation.Permissions(); !ok {
+		return &ValidationError{Name: "permissions", err: errors.New(`ent: missing required field "Role.permissions"`)}
 	}
 	return nil
 }
@@ -125,7 +140,7 @@ func (rc *RoleCreate) createSpec() (*Role, *sqlgraph.CreateSpec) {
 		_spec = sqlgraph.NewCreateSpec(role.Table, sqlgraph.NewFieldSpec(role.FieldID, field.TypeInt))
 	)
 	if value, ok := rc.mutation.Name(); ok {
-		_spec.SetField(role.FieldName, field.TypeString, value)
+		_spec.SetField(role.FieldName, field.TypeEnum, value)
 		_node.Name = value
 	}
 	if value, ok := rc.mutation.Permissions(); ok {

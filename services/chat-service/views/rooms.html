@@ -143,9 +143,22 @@
         async function loadRooms() {
             try {
                 const response = await fetch('/ws/get-rooms');
-                const rooms = await response.json();
+                let rooms = await response.json();
+
+                // Ensure rooms is always an array
+                if (!Array.isArray(rooms)) {
+                    rooms = [];
+                }
+
                 const roomList = document.getElementById('roomList');
                 roomList.innerHTML = '';
+
+                if (rooms.length === 0) {
+                    const noRoomsMessage = document.createElement('p');
+                    noRoomsMessage.textContent = 'No rooms available.';
+                    roomList.appendChild(noRoomsMessage);
+                    return;
+                }
 
                 rooms.forEach(room => {
                     const li = document.createElement('li');
@@ -174,15 +187,13 @@
             }
 
             if (roomName.trim()) {
-                const roomId = generateUUID();
-
                 try {
                     const response = await fetch('/ws/create-room', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({ id: roomId, name: roomName }),
+                        body: JSON.stringify({ name: roomName }),
                     });
 
                     if (response.ok) {
@@ -199,15 +210,6 @@
             } else {
                 alert("Room name can't be empty");
             }
-        }
-
-        // Function to generate a UUID
-        function generateUUID() {
-            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-                var r = Math.random() * 16 | 0,
-                    v = c === 'x' ? r : (r & 0x3 | 0x8);
-                return v.toString(16);
-            });
         }
 
         // Function to join a room

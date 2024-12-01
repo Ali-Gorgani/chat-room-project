@@ -27,7 +27,6 @@ func NewChatRepository(client *ent.Client, logger *logger.Logger) ports.IChatRep
 func (r *ChatRepository) AddRoom(ctx context.Context, chat domain.Chat) (domain.Chat, error) {
 	room := chat.Room
 	createdRoom, err := r.client.Room.Create().
-		SetID(room.ID).
 		SetName(room.Name).
 		Save(ctx)
 	if err != nil {
@@ -37,7 +36,7 @@ func (r *ChatRepository) AddRoom(ctx context.Context, chat domain.Chat) (domain.
 
 	res := domain.Chat{
 		Room: domain.Room{
-			ID:   createdRoom.ID,
+			ID:   fmt.Sprintf("%d", createdRoom.ID),
 			Name: createdRoom.Name,
 		},
 	}
@@ -56,7 +55,7 @@ func (r *ChatRepository) GetRooms(ctx context.Context) ([]domain.Chat, error) {
 	for _, room := range rooms {
 		res = append(res, domain.Chat{
 			Room: domain.Room{
-				ID:   room.ID,
+				ID:   fmt.Sprintf("%d", room.ID),
 				Name: room.Name,
 			},
 		})

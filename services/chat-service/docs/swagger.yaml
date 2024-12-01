@@ -9,8 +9,6 @@ definitions:
     type: object
   handler.CreateRoomRequest:
     properties:
-      id:
-        type: string
       name:
         type: string
     type: object

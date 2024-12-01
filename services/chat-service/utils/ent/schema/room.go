@@ -13,7 +13,6 @@ type Room struct {
 // Fields of the Room.
 func (Room) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id"),
 		field.String("name").
 			NotEmpty(),
 	}

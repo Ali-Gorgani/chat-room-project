@@ -25,12 +25,6 @@ func (rc *RoomCreate) SetName(s string) *RoomCreate {
 	return rc
 }
 
-// SetID sets the "id" field.
-func (rc *RoomCreate) SetID(s string) *RoomCreate {
-	rc.mutation.SetID(s)
-	return rc
-}
-
 // Mutation returns the RoomMutation object of the builder.
 func (rc *RoomCreate) Mutation() *RoomMutation {
 	return rc.mutation
@@ -87,13 +81,8 @@ func (rc *RoomCreate) sqlSave(ctx context.Context) (*Room, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Room.ID type: %T", _spec.ID.Value)
-		}
-	}
+	id := _spec.ID.Value.(int64)
+	_node.ID = int(id)
 	rc.mutation.id = &_node.ID
 	rc.mutation.done = true
 	return _node, nil
@@ -102,12 +91,8 @@ func (rc *RoomCreate) sqlSave(ctx context.Context) (*Room, error) {
 func (rc *RoomCreate) createSpec() (*Room, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Room{config: rc.config}
-		_spec = sqlgraph.NewCreateSpec(room.Table, sqlgraph.NewFieldSpec(room.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(room.Table, sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt))
 	)
-	if id, ok := rc.mutation.ID(); ok {
-		_node.ID = id
-		_spec.ID.Value = id
-	}
 	if value, ok := rc.mutation.Name(); ok {
 		_spec.SetField(room.FieldName, field.TypeString, value)
 		_node.Name = value
@@ -159,6 +144,10 @@ func (rcb *RoomCreateBulk) Save(ctx context.Context) ([]*Room, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})

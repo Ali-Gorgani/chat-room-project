@@ -41,16 +41,14 @@ func (h *ChatHandler) CreateRoom(ctx *fiber.Ctx) error {
 		return errors.NewError(errors.ErrorBadRequest, err)
 	}
 
-	// Initialize a room with updated Clients structure
-	h.hub.Lock()
-	h.hub.Rooms[req.ID] = &ws.Room{
-		ID:      req.ID,
-		Name:    req.Name,
-		Clients: make(map[string][]*ws.Client), // Updated to match new struct
+	createRoomRes, err := h.usecase.CreateRoom(ctx.Context(), CreateRoomReqToDomainChat(req))
+	if err != nil {
+		apiErr := errors.FromError(err)
+		return ctx.Status(apiErr.Status).JSON(apiErr)
 	}
-	h.hub.Unlock()
+	res := DomainChatToRoomRes(createRoomRes)
 
-	return ctx.Status(fiber.StatusCreated).JSON(req)
+	return ctx.Status(fiber.StatusCreated).JSON(res)
 }
 
 var config = websocket.Config{
@@ -74,7 +72,7 @@ func (h *ChatHandler) JoinRoom(ctx *fiber.Ctx) error {
 
 	if websocket.IsWebSocketUpgrade(ctx) {
 		return websocket.New(func(conn *websocket.Conn) {
-			h.usecase.JoinRoom(ctx.Context(), dtoJoinRoomReqToDomainChat(roomID, req, conn))
+			h.usecase.JoinRoom(ctx.Context(), JoinRoomReqToDomainChat(roomID, req, conn))
 		}, config)(ctx)
 	}
 
@@ -90,18 +88,14 @@ func (h *ChatHandler) JoinRoom(ctx *fiber.Ctx) error {
 // @Success 200 {array} RoomRes
 // @Router /ws/get-rooms [get]
 func (h *ChatHandler) GetRooms(ctx *fiber.Ctx) error {
-	rooms := make([]RoomRes, 0)
-
-	h.hub.Lock()
-	for _, r := range h.hub.Rooms {
-		rooms = append(rooms, RoomRes{
-			ID:   r.ID,
-			Name: r.Name,
-		})
+	rooms, err := h.usecase.GetRooms(ctx.Context())
+	if err != nil {
+		apiErr := errors.FromError(err)
+		return ctx.Status(apiErr.Status).JSON(apiErr)
 	}
-	h.hub.Unlock()
+	res := DomainChatToGetRoomsRes(rooms)
 
-	return ctx.Status(fiber.StatusOK).JSON(rooms)
+	return ctx.Status(fiber.StatusOK).JSON(res)
 }
 
 // GetClients godoc
@@ -115,27 +109,14 @@ func (h *ChatHandler) GetRooms(ctx *fiber.Ctx) error {
 // @Failure 404 {object} map[string]interface{}
 // @Router /ws/get-clients/{roomId} [get]
 func (h *ChatHandler) GetClients(ctx *fiber.Ctx) error {
-	var clients []ClientRes
 	roomID := ctx.Params("roomId")
 
-	// Check if the room exists
-	h.hub.Lock()
-	room, ok := h.hub.Rooms[roomID]
-	if !ok {
-		clients = make([]ClientRes, 0)
-		return ctx.Status(fiber.StatusOK).JSON(clients)
+	getClientsRes, err := h.usecase.GetClients(ctx.Context(), GetClientsReqToDomainChat(roomID))
+	if err != nil {
+		apiErr := errors.FromError(err)
+		return ctx.Status(apiErr.Status).JSON(apiErr)
 	}
+	res := DomainChatToGetClientsRes(getClientsRes)
 
-	// Aggregate all connections for each user ID
-	for _, clientList := range room.Clients {
-		for _, client := range clientList {
-			clients = append(clients, ClientRes{
-				ID:       client.ID,
-				Username: client.Username,
-			})
-		}
-	}
-	h.hub.Unlock()
-
-	return ctx.Status(fiber.StatusOK).JSON(clients)
+	return ctx.Status(fiber.StatusOK).JSON(res)
 }

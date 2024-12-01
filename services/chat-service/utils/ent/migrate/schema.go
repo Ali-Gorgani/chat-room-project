@@ -23,7 +23,7 @@ var (
 	}
 	// RoomsColumns holds the columns for the "rooms" table.
 	RoomsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString},
+		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "name", Type: field.TypeString},
 	}
 	// RoomsTable holds the schema information for the "rooms" table.

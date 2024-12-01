@@ -164,6 +164,15 @@
             }
         }
 
+        // Add an event listener to send a message when pressing Enter
+        const messageInput = document.getElementById('message');
+        messageInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                sendMessage();
+                event.preventDefault(); // Prevent the default action (e.g., form submission)
+            }
+        });
+
         function leaveRoom() {
             ws.close();
             window.location.href = '/rooms';

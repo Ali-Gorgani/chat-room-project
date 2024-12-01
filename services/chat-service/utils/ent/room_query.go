@@ -82,8 +82,8 @@ func (rq *RoomQuery) FirstX(ctx context.Context) *Room {
 
 // FirstID returns the first Room ID from the query.
 // Returns a *NotFoundError when no Room ID was found.
-func (rq *RoomQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (rq *RoomQuery) FirstID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = rq.Limit(1).IDs(setContextOp(ctx, rq.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
@@ -95,7 +95,7 @@ func (rq *RoomQuery) FirstID(ctx context.Context) (id string, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (rq *RoomQuery) FirstIDX(ctx context.Context) string {
+func (rq *RoomQuery) FirstIDX(ctx context.Context) int {
 	id, err := rq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -133,8 +133,8 @@ func (rq *RoomQuery) OnlyX(ctx context.Context) *Room {
 // OnlyID is like Only, but returns the only Room ID in the query.
 // Returns a *NotSingularError when more than one Room ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (rq *RoomQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (rq *RoomQuery) OnlyID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = rq.Limit(2).IDs(setContextOp(ctx, rq.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
@@ -150,7 +150,7 @@ func (rq *RoomQuery) OnlyID(ctx context.Context) (id string, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (rq *RoomQuery) OnlyIDX(ctx context.Context) string {
+func (rq *RoomQuery) OnlyIDX(ctx context.Context) int {
 	id, err := rq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -178,7 +178,7 @@ func (rq *RoomQuery) AllX(ctx context.Context) []*Room {
 }
 
 // IDs executes the query and returns a list of Room IDs.
-func (rq *RoomQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (rq *RoomQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if rq.ctx.Unique == nil && rq.path != nil {
 		rq.Unique(true)
 	}
@@ -190,7 +190,7 @@ func (rq *RoomQuery) IDs(ctx context.Context) (ids []string, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (rq *RoomQuery) IDsX(ctx context.Context) []string {
+func (rq *RoomQuery) IDsX(ctx context.Context) []int {
 	ids, err := rq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -365,7 +365,7 @@ func (rq *RoomQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (rq *RoomQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(room.Table, room.Columns, sqlgraph.NewFieldSpec(room.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(room.Table, room.Columns, sqlgraph.NewFieldSpec(room.FieldID, field.TypeInt))
 	_spec.From = rq.sql
 	if unique := rq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

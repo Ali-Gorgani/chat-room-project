@@ -8,7 +8,7 @@ import (
 )
 
 type AuthHandler struct {
-	auth.AuthServiceServer
+	auth.UnimplementedAuthServiceServer
 	authUseCase *usecase.AuthUseCase
 }
 

@@ -8,7 +8,7 @@ import (
 )
 
 type UserHandler struct {
-	user.UsersServiceServer
+	user.UnimplementedUsersServiceServer
 	userUseCase *usecase.UserUseCase
 }
 

@@ -3,6 +3,8 @@ package user
 import (
 	"context"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/grpc/pkg/user"
 	"github.com/Ali-Gorgani/chat-room-project/services/auth-service/utils/configs"
@@ -25,10 +27,13 @@ type Client struct {
 // NewClient creates a new gRPC client for AuthService
 func NewClient(logger *logger.Logger, config *configs.Config) (IClient, error) {
 	// Establish gRPC connection with the server
-	conn, err := grpc.NewClient(fmt.Sprintf("%s:%d", config.GRPC.UserHost, config.GRPC.UserPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// UserService connection
+	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%d", config.GRPC.UserHost, config.GRPC.UserPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		logger.Error(fmt.Sprintf("failed to establish connection with UserService: %v", err))
-		return nil, err
+		log.Fatalf("failed to connect to UserService: %v", err)
 	}
 	client := user.NewUsersServiceClient(conn)
 

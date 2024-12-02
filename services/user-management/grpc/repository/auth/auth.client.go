@@ -8,6 +8,7 @@ import (
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/configs"
 	"github.com/Ali-Gorgani/chat-room-project/services/user-management/utils/logger"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 // Client interface for AuthService
@@ -25,7 +26,7 @@ type Client struct {
 // NewClient creates a new gRPC client for AuthService
 func NewClient(logger *logger.Logger, config *configs.Config) (IClient, error) {
 	// Establish gRPC connection with the server
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", config.GRPC.AuthHost, config.GRPC.AuthPort), grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.NewClient(fmt.Sprintf("%s:%d", config.GRPC.AuthHost, config.GRPC.AuthPort), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to establish connection with AuthService: %v", err))
 		return nil, err
